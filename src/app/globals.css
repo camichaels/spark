@@ -1,0 +1,153 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #FAF9F7;
+  --bg-secondary: #F3F1ED;
+  --bg-card: #FFFFFF;
+  --text-primary: #2C2A26;
+  --text-secondary: #6B6860;
+  --text-tertiary: #9D9A93;
+  --border-light: #E8E6E1;
+  --border-medium: #D9D6CF;
+
+  --spark-primary: #D97B0D;
+  --spark-secondary: #F5A623;
+  --spark-bg: #FEF8F0;
+  --spark-border: #F5DFC3;
+
+  --user-content-bg: #F9F8F6;
+  --user-content-border: #E8E6E1;
+
+  --link-blue: #4A6FA5;
+  --danger: #c0392b;
+
+  --spark-hover: #c46c0b;
+  --spark-shadow: rgba(217, 123, 13, 0.12);
+  --overlay-bg: rgba(44, 42, 38, 0.5);
+  --backdrop-bg: rgba(44, 42, 38, 0.3);
+  --post-hover: #1a1916;
+}
+
+[data-theme="sage"] {
+  --bg-primary: #F5F6F4;
+  --bg-secondary: #E9ECE6;
+  --bg-card: #FFFFFF;
+  --text-primary: #252B23;
+  --text-secondary: #5C6358;
+  --text-tertiary: #8E9489;
+  --border-light: #DCE0D7;
+  --border-medium: #C5CBBE;
+
+  --spark-primary: #3D7A5F;
+  --spark-secondary: #5A9E7C;
+  --spark-bg: #EFF6F1;
+  --spark-border: #C8DED0;
+
+  --user-content-bg: #F5F6F4;
+  --user-content-border: #DCE0D7;
+
+  --link-blue: #3B6B8A;
+
+  --spark-hover: #2F614A;
+  --spark-shadow: rgba(61, 122, 95, 0.12);
+  --overlay-bg: rgba(37, 43, 35, 0.5);
+  --backdrop-bg: rgba(37, 43, 35, 0.3);
+  --post-hover: #1a1e19;
+}
+
+[data-theme="dusk"] {
+  --bg-primary: #F6F4F7;
+  --bg-secondary: #ECEAEF;
+  --bg-card: #FFFFFF;
+  --text-primary: #28232E;
+  --text-secondary: #605A68;
+  --text-tertiary: #948E9C;
+  --border-light: #E0DCE4;
+  --border-medium: #CCC7D2;
+
+  --spark-primary: #7B5A9E;
+  --spark-secondary: #9672B8;
+  --spark-bg: #F5F0FA;
+  --spark-border: #D8CCE6;
+
+  --user-content-bg: #F6F4F7;
+  --user-content-border: #E0DCE4;
+
+  --link-blue: #5A6FA0;
+
+  --spark-hover: #634883;
+  --spark-shadow: rgba(123, 90, 158, 0.12);
+  --overlay-bg: rgba(40, 35, 46, 0.5);
+  --backdrop-bg: rgba(40, 35, 46, 0.3);
+  --post-hover: #1e1a24;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ===========================================
+   ADD THIS BLOCK TO YOUR globals.css 
+   After the [data-theme="dusk"] block,
+   before the body {} rule
+   =========================================== */
+
+/* Dark mode — works with any theme */
+[data-mode="dark"] {
+  --bg-primary: #1A1918;
+  --bg-secondary: #232220;
+  --bg-card: #2A2927;
+  --text-primary: #E8E6E1;
+  --text-secondary: #A09D96;
+  --text-tertiary: #706D66;
+  --border-light: #3A3836;
+  --border-medium: #4A4846;
+
+  --user-content-bg: #2A2927;
+  --user-content-border: #3A3836;
+
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+  --backdrop-bg: rgba(0, 0, 0, 0.4);
+  --post-hover: #d0cec9;
+}
+
+/* Dark + Ember (default) */
+[data-mode="dark"] {
+  --spark-bg: #2E2418;
+  --spark-border: #4A3A24;
+}
+
+/* Dark + Sage */
+[data-mode="dark"][data-theme="sage"] {
+  --spark-primary: #4A9471;
+  --spark-secondary: #6AB88F;
+  --spark-bg: #1E2B22;
+  --spark-border: #2E4035;
+  --spark-hover: #3B7B5C;
+  --spark-shadow: rgba(74, 148, 113, 0.15);
+  --link-blue: #5A8FAF;
+}
+
+/* Dark + Dusk */
+[data-mode="dark"][data-theme="dusk"] {
+  --spark-primary: #9672B8;
+  --spark-secondary: #AD8CD0;
+  --spark-bg: #28202E;
+  --spark-border: #3E3448;
+  --spark-hover: #7D5CA3;
+  --spark-shadow: rgba(150, 114, 184, 0.15);
+  --link-blue: #7A8FC0;
+}
