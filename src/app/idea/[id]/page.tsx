@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import styles from './idea.module.css'
 import ImageThumbnail from '@/components/ImageThumbnail'
 import ExpandableText from '@/components/ExpandableText'
+import { buildMiniSparkPrompt, buildElementContext } from '@/lib/prompts'
 
 type Idea = {
   id: string
@@ -442,9 +443,9 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
     finally { setSparkLoading(null) }
   }
 
-  async function fireMiniSpark(el: Element, type: 'summarize' | 'related') {
+  async function fireMiniSpark(el: Element) {
     if (!idea) return
-    const loadingKey = `${type}-${el.id}`
+    const loadingKey = `summarize-${el.id}`
     setMiniSparkLoading(loadingKey)
     const token = await getAccessToken()
     if (!token) return
@@ -456,33 +457,25 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
     const isImage = el.type === 'image'
 
     // Determine what context we actually have
-    const limitedContext = isArticle && !hasBody && !hasDescription
-    const contextNote = limitedContext
-      ? `\n[IMPORTANT: You only have the article title and URL — you have NOT read the article. Start your response with "Based on the title:" and be upfront that you're working from limited information.]`
-      : ''
+    const hasLimitedContext = isArticle && !hasBody && !hasDescription
 
     // Read with legacy fallback helpers
     const elUrl = metaUrl(el.metadata)
     const elFilename = metaFilename(el.metadata)
 
-    const elementContext = [
-      el.content || '',
-      elUrl ? `URL: ${elUrl}` : '',
-      el.metadata?.title ? `Title: ${el.metadata.title}` : '',
-      el.metadata?.description ? `Description: ${el.metadata.description}` : '',
-      (isFile || isImage) ? `File: ${elFilename}` : '',
-    ].filter(Boolean).join('\n')
-
-    const prompts = {
-      summarize: `Summarize this concisely in 1-2 sentences. Capture the key insight.${contextNote}`,
-      related: `Suggest 2-3 related ideas, questions, or connections worth exploring. Be specific and concise.${contextNote}`,
-    }
+    // Use centralized helpers
+    const elementContext = buildElementContext(
+      { content: el.content, type: el.type, metadata: el.metadata },
+      elUrl,
+      elFilename
+    )
+    const prompt = buildMiniSparkPrompt('summarize', elementContext, hasLimitedContext)
 
     // Build request — include attachment info for files and images
     const requestBody: Record<string, unknown> = {
       ideaId: idea.id,
       sparkType: 'mini',
-      customPrompt: `[Element context]\n${elementContext}\n\n[Task]\n${prompts[type]}`,
+      customPrompt: prompt,
     }
 
     if ((isFile || isImage) && elUrl) {
@@ -503,12 +496,7 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
 
       if (res.ok) {
         const data = await res.json()
-        const updatedMetadata = { ...el.metadata }
-        if (type === 'summarize') {
-          updatedMetadata.summary = data.content
-        } else {
-          updatedMetadata.related = data.content
-        }
+        const updatedMetadata = { ...el.metadata, summary: data.content }
         await supabase.from('elements').update({ metadata: updatedMetadata }).eq('id', el.id)
         loadElements()
       }
@@ -749,8 +737,9 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
           <div className={styles.sparkLabel}>⚡ Spark It</div>
           <div className={styles.sparkButtons}>
             <button onClick={() => fireSpark('synthesize')} disabled={isSparkBusy} className={styles.sparkBtn}>Synthesize</button>
-            <button onClick={() => fireSpark('challenge')} disabled={isSparkBusy} className={styles.sparkBtn}>Challenge me</button>
+            <button onClick={() => fireSpark('challenge')} disabled={isSparkBusy} className={styles.sparkBtn}>Challenge</button>
             <button onClick={() => fireSpark('expand')} disabled={isSparkBusy} className={styles.sparkBtn}>Expand</button>
+            <button onClick={() => fireSpark('soWhat')} disabled={isSparkBusy} className={styles.sparkBtn}>So what?</button>
             <button onClick={() => setShowCustom(!showCustom)} disabled={isSparkBusy}
               className={`${styles.sparkBtn} ${showCustom ? styles.sparkBtnActive : ''}`}>Ask anything</button>
           </div>
@@ -859,13 +848,6 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                     </div>
                   )}
 
-                  {!!el.metadata?.related && (
-                    <div className={styles.miniSparkResult}>
-                      <div className={styles.miniSparkLabel}>⚡ Related</div>
-                      <div className={styles.miniSparkText}>{String(el.metadata.related)}</div>
-                    </div>
-                  )}
-
                   {!!el.metadata?.note && editingNoteId !== el.id && (
                     <div className={styles.noteDisplay}>
                       {String(el.metadata.note)}
@@ -889,21 +871,11 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                         <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                           {!!el.metadata?.note ? 'Edit note' : '+ Add note'}
                         </button>
-                        {el.source !== 'ai' && (
-                          <>
-                            {!el.metadata?.summary && (
-                              <button onClick={() => fireMiniSpark(el, 'summarize')} disabled={miniSparkLoading !== null}
-                                className={`${styles.actionBtn} ${styles.miniSparkBtn}`}>
-                                {miniSparkLoading === `summarize-${el.id}` ? <span className={styles.miniSparkThinking}>Thinking...</span> : '⚡ Summarize'}
-                              </button>
-                            )}
-                            {!el.metadata?.related && (
-                              <button onClick={() => fireMiniSpark(el, 'related')} disabled={miniSparkLoading !== null}
-                                className={`${styles.actionBtn} ${styles.miniSparkBtn}`}>
-                                {miniSparkLoading === `related-${el.id}` ? <span className={styles.miniSparkThinking}>Thinking...</span> : '⚡ Related'}
-                              </button>
-                            )}
-                          </>
+                        {el.source !== 'ai' && !el.metadata?.summary && (
+                          <button onClick={() => fireMiniSpark(el)} disabled={miniSparkLoading !== null}
+                            className={`${styles.actionBtn} ${styles.miniSparkBtn}`}>
+                            {miniSparkLoading === `summarize-${el.id}` ? <span className={styles.miniSparkThinking}>Thinking...</span> : '⚡ Summarize'}
+                          </button>
                         )}
                       </div>
                       <div className={styles.menuWrapper}>

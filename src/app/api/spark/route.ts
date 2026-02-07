@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
+import {
+  getSystemPromptWithIdea,
+  SYSTEM_PROMPT_DRAWER,
+  SPARK_PROMPTS,
+  buildElementsSummary,
+} from '@/lib/prompts'
 
 const anthropic = new Anthropic()
 
@@ -91,20 +97,7 @@ export async function POST(req: NextRequest) {
   const { ideaId, sparkType, customPrompt, attachment, drawerMode } = body
 
   // ── Drawer mode: mini-sparks without idea context ──
-  if (drawerMode && (sparkType === 'mini' || sparkType === 'summarize' || sparkType === 'related')) {
-    const systemPrompt = `You are Spark, an AI provocateur helping users develop their thinking. You challenge, connect, and expand ideas — you are not a generic assistant.
-
-The user is reviewing an item from their Drawer — a holding area for thoughts, links, and files that haven't been assigned to a specific idea yet.
-
-CRITICAL RULES:
-- Be concise and specific. 1-2 sentences for mini-sparks.
-- NEVER say you "cannot access URLs" or "cannot browse the internet." You have full context about the element provided.
-- NEVER mention dates being in the future or question whether content is valid.
-- When asked to summarize an article element, summarize based on its title and description. If only a URL is available, infer the topic from the URL path and domain.
-- If a PDF or image is attached, analyze its actual content — do not just reference the filename.
-- Use plain text only. No markdown headers, no bullet points with dashes.
-- Do not start responses with "Based on..." or "Looking at..." — just state your insight directly.`
-
+  if (drawerMode && sparkType === 'mini') {
     const userPrompt = customPrompt || 'What do you think about this?'
 
     // Build message content — may include file attachments
@@ -127,7 +120,7 @@ CRITICAL RULES:
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 400,
-        system: systemPrompt,
+        system: SYSTEM_PROMPT_DRAWER,
         messages: [{ role: 'user', content: messageContent }],
       })
 
@@ -167,53 +160,36 @@ CRITICAL RULES:
     .eq('is_archived', false)
     .order('created_at', { ascending: true })
 
-  // Build elements summary — read with legacy fallback for older data
-  const elementsSummary = (elements || []).map((el: { type: string; source: string; content: string | null; metadata: Record<string, unknown> }) => {
-    const prefix = el.source === 'ai' ? '[Spark]' : `[${el.type}]`
-    let content = el.content || ''
-    if (el.metadata?.title) content = el.metadata.title as string
-    if (el.metadata?.description) content += ` — ${el.metadata.description}`
-    // Canonical: url; Legacy: public_url
-    const elUrl = (el.metadata?.url || el.metadata?.public_url) as string | undefined
-    if (elUrl && !content) content = elUrl
-    // Canonical: filename; Legacy: file_name
-    const elFilename = (el.metadata?.filename || el.metadata?.file_name) as string | undefined
-    if (elFilename && !content) content = elFilename
-    return `${prefix} ${content}`
-  }).join('\n')
+  const elementsList = elements || []
+  
+  // Build elements summary using centralized helper (with smart truncation)
+  const elementsSummary = buildElementsSummary(elementsList)
 
-  const systemPrompt = `You are Spark, an AI provocateur helping users develop their thinking. You challenge, connect, and expand ideas — you are not a generic assistant.
+  // Build system prompt with idea context and element count
+  const systemPrompt = getSystemPromptWithIdea(
+    idea.title,
+    idea.current_thinking,
+    elementsSummary,
+    elementsList.length
+  )
 
-The user is working on an idea called "${idea.title}".
-${idea.current_thinking ? `\nTheir current thinking:\n${idea.current_thinking}` : ''}
-${elementsSummary ? `\nTheir collected elements:\n${elementsSummary}` : ''}
-
-CRITICAL RULES:
-- Be concise and specific. 2-4 sentences max for standard sparks. 1-2 sentences for mini-sparks.
-- NEVER say you "cannot access URLs" or "cannot browse the internet." You have full context about every element the user has saved — their titles, descriptions, and URLs are provided above.
-- NEVER mention dates being in the future or question whether content is valid.
-- NEVER be generic. Always reference their specific content, titles, and ideas.
-- When asked to summarize an article element, summarize based on its title and description. If only a URL is available, infer the topic from the URL path and domain.
-- If a PDF or image is attached, analyze its actual content — do not just reference the filename.
-- Challenge their thinking, don't just validate it.
-- Use plain text only. No markdown headers, no bullet points with dashes. Short paragraphs or numbered points if listing.
-- Do not start responses with "Based on..." or "Looking at..." — just state your insight directly.`
-
+  // Get the appropriate user prompt
   let userPrompt = ''
   switch (sparkType) {
     case 'synthesize':
-      userPrompt = 'Look across all my elements and current thinking. What patterns or connections do you see? Synthesize the key threads into a coherent insight.'
+      userPrompt = SPARK_PROMPTS.synthesize
       break
     case 'challenge':
-      userPrompt = 'Challenge my current thinking. What assumptions am I making? What am I missing? Push back on something specific.'
+      userPrompt = SPARK_PROMPTS.challenge
       break
     case 'expand':
-      userPrompt = 'Based on what I have so far, what adjacent territory should I explore? Suggest a specific direction I haven\'t considered.'
+      userPrompt = SPARK_PROMPTS.expand
+      break
+    case 'soWhat':
+      userPrompt = SPARK_PROMPTS.soWhat
       break
     case 'custom':
     case 'mini':
-    case 'summarize':
-    case 'related':
       userPrompt = customPrompt || 'What do you think about my idea so far?'
       break
     default:
@@ -240,7 +216,7 @@ CRITICAL RULES:
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 400,
+      max_tokens: 500, // Slightly more room for question at end
       system: systemPrompt,
       messages: [{ role: 'user', content: messageContent }],
     })
@@ -250,7 +226,7 @@ CRITICAL RULES:
       : ''
 
     // Mini-sparks return content directly
-    if (sparkType === 'mini' || sparkType === 'summarize' || sparkType === 'related') {
+    if (sparkType === 'mini') {
       return NextResponse.json({ content })
     }
 
