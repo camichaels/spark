@@ -47,6 +47,7 @@ export default function JotsPage() {
 
   // ••• modal for quick add
   const [showAddOptions, setShowAddOptions] = useState(false)
+  const addOptionsRef = useRef<HTMLDivElement>(null)
 
   // Element action menu
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
@@ -80,7 +81,7 @@ export default function JotsPage() {
     loadIdeas()
   }, [])
 
-  // Close menu when clicking outside
+  // Close element ••• menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (openMenuId && !(e.target as HTMLElement).closest(`.${styles.menuWrapper}`)) {
@@ -90,6 +91,17 @@ export default function JotsPage() {
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
   }, [openMenuId])
+
+  // Close add options ••• menu when clicking outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (addOptionsRef.current && !addOptionsRef.current.contains(e.target as Node)) {
+        setShowAddOptions(false)
+      }
+    }
+    if (showAddOptions) document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [showAddOptions])
 
   async function loadJots() {
     // Load ALL elements without an idea_id (no more drawer flag distinction)
@@ -440,7 +452,7 @@ export default function JotsPage() {
             {quickAdd.trim() && (
               <button onClick={handleQuickAdd} className={styles.postBtn}>Post</button>
             )}
-            <div className={styles.menuWrapper}>
+            <div className={styles.menuWrapper} ref={addOptionsRef}>
               <button className={styles.moreBtn} onClick={() => setShowAddOptions(!showAddOptions)}>•••</button>
               {showAddOptions && (
                 <div className={styles.dropMenu}>
