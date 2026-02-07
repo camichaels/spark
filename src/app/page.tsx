@@ -49,7 +49,7 @@ export default function Home() {
 
   // Quick Capture
   const [captureText, setCaptureText] = useState('')
-  const captureRef = useRef<HTMLTextAreaElement>(null)
+  const captureRef = useRef<HTMLInputElement>(null)
   const [showAddOptions, setShowAddOptions] = useState(false)
   const captureFileRef = useRef<HTMLInputElement>(null)
   const captureImageRef = useRef<HTMLInputElement>(null)
@@ -570,16 +570,12 @@ export default function Home() {
             <button onClick={clearStagedFile} className={styles.stagedRemove}>✕</button>
           </div>
         )}
-        <textarea
+        <input
           ref={captureRef}
           value={captureText}
-          onChange={(e) => {
-            setCaptureText(e.target.value)
-            e.target.style.height = 'auto'
-            e.target.style.height = e.target.scrollHeight + 'px'
-          }}
+          onChange={(e) => setCaptureText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter') {
               e.preventDefault()
               handlePostTap()
             }
@@ -587,22 +583,33 @@ export default function Home() {
           onPaste={handleCapturePaste}
           placeholder={stagedFile ? "Add a caption (optional)..." : "Add a thought, link..."}
           className={styles.captureInput}
-          rows={1}
         />
         <div className={styles.captureActions}>
           {(captureText.trim() || stagedFile) && (
             <button onClick={handlePostTap} className={styles.capturePost}>Post</button>
           )}
-          <button
-            onClick={() => setShowAddOptions(true)}
-            className={styles.captureMore}
-            title="Attach file or image"
-          >•••</button>
+          <div className={styles.menuWrapper}>
+            <button
+              onClick={() => setShowAddOptions(!showAddOptions)}
+              className={styles.captureMore}
+              title="Attach file or image"
+            >•••</button>
+            {showAddOptions && (
+              <div className={styles.dropMenu}>
+                {isMobile && (
+                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
+                )}
+                <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureImageRef.current?.click() }}>Add Image</button>
+                <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureFileRef.current?.click() }}>Add File</button>
+              </div>
+            )}
+          </div>
         </div>
         {/* Hidden file inputs */}
         <input
           ref={captureFileRef}
           type="file"
+          accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.zip"
           style={{ display: 'none' }}
           onChange={handleCaptureFileSelect}
         />
@@ -622,20 +629,6 @@ export default function Home() {
           onChange={handleCaptureImageSelect}
         />
       </div>
-
-      {/* ••• Add Options — dropdown menu */}
-      {showAddOptions && (
-        <>
-          <div className={styles.overlay} onClick={() => setShowAddOptions(false)} />
-          <div className={styles.dropMenu}>
-            {isMobile && (
-              <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
-            )}
-            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureImageRef.current?.click() }}>Add Image</button>
-            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureFileRef.current?.click() }}>Add File</button>
-          </div>
-        </>
-      )}
 
       {/* Inbox · Drawer — outlined pill buttons */}
       <div className={styles.secondaryNav}>
@@ -808,7 +801,7 @@ export default function Home() {
       {/* Footer */}
       <footer className={styles.footer}>
         <p>Made with ❤️ for those who spark ideas</p>
-        <p className={styles.footerContact}>hello@sparkideas.app</p>
+        <p><a href="mailto:hello@sparkideas.app" className={styles.footerContact}>hello@sparkideas.app</a></p>
         <p className={styles.footerCopy}>© 2026 Spark Ideas</p>
       </footer>
 

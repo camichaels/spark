@@ -41,7 +41,7 @@ export default function DrawerPage() {
 
   // Quick add
   const [quickAdd, setQuickAdd] = useState('')
-  const quickAddRef = useRef<HTMLTextAreaElement>(null)
+  const quickAddRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -464,23 +464,33 @@ export default function DrawerPage() {
 
         {/* Quick Add — matches Idea page: textarea, then [Post] [•••] row */}
         <div className={styles.quickAdd}>
-          <textarea
+          <input
             ref={quickAddRef}
             value={quickAdd}
-            onChange={(e) => { setQuickAdd(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
+            onChange={(e) => setQuickAdd(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuickAdd() } }}
             onPaste={handlePaste}
             placeholder="Add a thought, link..."
             className={styles.quickAddInput}
-            rows={1}
           />
           <div className={styles.quickAddActions}>
             {quickAdd.trim() && (
               <button onClick={handleQuickAdd} className={styles.postBtn}>Post</button>
             )}
-            <span className={styles.quickAddMore} onClick={() => setShowAddOptions(true)}>•••</span>
+            <div className={styles.menuWrapper}>
+              <button className={styles.moreBtn} onClick={() => setShowAddOptions(!showAddOptions)}>•••</button>
+              {showAddOptions && (
+                <div className={styles.dropMenu}>
+                  {isMobile && (
+                    <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
+                  )}
+                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); imageInputRef.current?.click() }}>Add Image</button>
+                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); fileInputRef.current?.click() }}>Add File</button>
+                </div>
+              )}
+            </div>
           </div>
-          <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileSelected} />
+          <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.zip" style={{ display: 'none' }} onChange={handleFileSelected} />
           <input ref={imageInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileSelected} />
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFileSelected} />
         </div>
@@ -630,20 +640,6 @@ export default function DrawerPage() {
                 ))
               )}
             </div>
-          </div>
-        </>
-      )}
-
-      {/* ===== ADD OPTIONS (•••) ===== */}
-      {showAddOptions && (
-        <>
-          <div className={styles.overlay} onClick={() => setShowAddOptions(false)} />
-          <div className={styles.dropMenu}>
-            {isMobile && (
-              <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
-            )}
-            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); imageInputRef.current?.click() }}>Add Image</button>
-            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); fileInputRef.current?.click() }}>Add File</button>
           </div>
         </>
       )}

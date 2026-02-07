@@ -10,7 +10,7 @@
 .center { text-align: center; padding: 80px 20px; }
 .muted { color: var(--text-tertiary); margin-top: 6px; font-size: 14px; }
 
-.nav { padding: 16px 20px; max-width: 600px; margin: 0 auto; }
+.nav { padding: 16px 20px; max-width: 600px; margin: 0 auto; position: sticky; top: 0; z-index: 100; background: var(--bg-primary); }
 
 .backBtn {
   background: none;
