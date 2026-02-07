@@ -86,25 +86,6 @@
   --post-hover: #1e1a24;
 }
 
-body {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-  min-height: 100vh;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* ===========================================
-   ADD THIS BLOCK TO YOUR globals.css 
-   After the [data-theme="dusk"] block,
-   before the body {} rule
-   =========================================== */
-
 /* Dark mode — works with any theme */
 [data-mode="dark"] {
   --bg-primary: #1A1918;
@@ -150,4 +131,22 @@ a {
   --spark-hover: #7D5CA3;
   --spark-shadow: rgba(150, 114, 184, 0.15);
   --link-blue: #7A8FC0;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Prevent mobile Safari zoom on input focus */
+input, textarea, select {
+  font-size: 16px;
 }
