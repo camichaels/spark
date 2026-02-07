@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
 :root {
   --bg-primary: #FAF9F7;
   --bg-secondary: #F3F1ED;
