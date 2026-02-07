@@ -140,7 +140,8 @@
 
 .placeholder {
   color: var(--text-tertiary);
-  font-style: italic;
+  font-family: 'DM Sans', system-ui;
+  font-size: 15px;
 }
 
 .thinkingTextarea {

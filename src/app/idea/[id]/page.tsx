@@ -810,7 +810,7 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
         )}
         <input ref={photoInputRef} type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} />
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileInput} style={{ display: 'none' }} />
-        <input ref={fileInputRef} type="file" onChange={handleFileInput} style={{ display: 'none' }} />
+        <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.zip" onChange={handleFileInput} style={{ display: 'none' }} />
 
         {/* Timeline */}
         {elements.length > 0 && (
