@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import styles from './drawer.module.css'
+import styles from './jots.module.css'
+import ImageThumbnail from '@/components/ImageThumbnail'
+import ExpandableText from '@/components/ExpandableText'
 import { buildMiniSparkPrompt, buildElementContext } from '@/lib/prompts'
 
 type Element = {
@@ -22,8 +24,6 @@ type Idea = {
 }
 
 // ── Helpers: read metadata with legacy fallback ──
-// Canonical keys: url, filename
-// Legacy keys (from older data): public_url, file_name
 function metaUrl(meta: Record<string, unknown>): string | undefined {
   return (meta?.url || meta?.public_url) as string | undefined
 }
@@ -32,7 +32,7 @@ function metaFilename(meta: Record<string, unknown>): string {
   return (meta?.filename || meta?.file_name || 'File') as string
 }
 
-export default function DrawerPage() {
+export default function JotsPage() {
   const router = useRouter()
   const [elements, setElements] = useState<Element[]>([])
   const [ideas, setIdeas] = useState<Idea[]>([])
@@ -40,7 +40,7 @@ export default function DrawerPage() {
 
   // Quick add
   const [quickAdd, setQuickAdd] = useState('')
-  const quickAddRef = useRef<HTMLTextAreaElement>(null)
+  const quickAddRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -76,7 +76,7 @@ export default function DrawerPage() {
   }, [])
 
   useEffect(() => {
-    loadDrawer()
+    loadJots()
     loadIdeas()
   }, [])
 
@@ -91,13 +91,13 @@ export default function DrawerPage() {
     return () => document.removeEventListener('click', handleClickOutside)
   }, [openMenuId])
 
-  async function loadDrawer() {
+  async function loadJots() {
+    // Load ALL elements without an idea_id (no more drawer flag distinction)
     const { data } = await supabase
       .from('elements')
       .select('*')
       .is('idea_id', null)
       .eq('is_archived', false)
-      .eq('metadata->>drawer', 'true')
       .order('created_at', { ascending: false })
     if (data) setElements(data)
     setLoading(false)
@@ -134,15 +134,15 @@ export default function DrawerPage() {
       type: isUrl ? 'article' : 'thought',
       source: 'user',
       content,
-      metadata: isUrl ? { url: content, drawer: 'true' } : { drawer: 'true' },
+      metadata: isUrl ? { url: content } : {},
       is_archived: false,
     })
 
     if (!error) {
       setQuickAdd('')
       if (quickAddRef.current) quickAddRef.current.style.height = 'auto'
-      loadDrawer()
-      showToast('Added to Drawer')
+      loadJots()
+      showToast('Added to Jots')
     }
   }
 
@@ -165,7 +165,6 @@ export default function DrawerPage() {
 
     const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(filePath)
 
-    // UNIFIED: canonical keys — url, filename, bucket
     const { error } = await supabase.from('elements').insert({
       user_id: userId,
       idea_id: null,
@@ -173,7 +172,6 @@ export default function DrawerPage() {
       source: 'user',
       content: file.name,
       metadata: {
-        drawer: 'true',
         bucket,
         filename: file.name,
         file_size: file.size,
@@ -184,27 +182,11 @@ export default function DrawerPage() {
       is_archived: false,
     })
 
-    if (!error) { loadDrawer(); showToast('Added to Drawer') }
+    if (!error) { loadJots(); showToast('Added to Jots') }
     e.target.value = ''
   }
 
-  // ••• modal: paste link
-  function handlePasteLinkOption() {
-    setShowAddOptions(false)
-    quickAddRef.current?.focus()
-    navigator.clipboard.readText().then((text) => {
-      const urlPattern = /^(https?:\/\/|www\.)/i
-      if (urlPattern.test(text.trim())) {
-        setQuickAdd(text.trim())
-      } else {
-        showToast('No URL found on clipboard')
-      }
-    }).catch(() => {
-      showToast('Could not read clipboard')
-    })
-  }
-
-  // Clipboard paste on textarea
+  // Clipboard paste on input
   async function handlePaste(e: React.ClipboardEvent) {
     const items = e.clipboardData?.items
     if (!items) return
@@ -227,7 +209,6 @@ export default function DrawerPage() {
 
         const { data: urlData } = supabase.storage.from('images').getPublicUrl(filePath)
 
-        // UNIFIED: canonical keys — url, filename, bucket
         const { error } = await supabase.from('elements').insert({
           user_id: userId,
           idea_id: null,
@@ -235,7 +216,6 @@ export default function DrawerPage() {
           source: 'user',
           content: named.name,
           metadata: {
-            drawer: 'true',
             bucket: 'images',
             filename: named.name,
             file_size: named.size,
@@ -246,13 +226,13 @@ export default function DrawerPage() {
           is_archived: false,
         })
 
-        if (!error) { loadDrawer(); showToast('Image added to Drawer') }
+        if (!error) { loadJots(); showToast('Image added to Jots') }
         return
       }
     }
   }
 
-  // ── Mini-sparks ──
+  // ── Mini-spark (summarize only) ──
   async function fireMiniSpark(el: Element) {
     setMiniSparkLoading(`summarize-${el.id}`)
     const { data: session } = await supabase.auth.getSession()
@@ -273,11 +253,10 @@ export default function DrawerPage() {
     )
     const prompt = buildMiniSparkPrompt('summarize', elementContext, false)
 
-    // Drawer mini-sparks have no idea context
     const requestBody: Record<string, unknown> = {
       sparkType: 'mini',
       customPrompt: prompt,
-      drawerMode: true,
+      drawerMode: true, // No idea context
     }
 
     if ((isFile || isImage) && elUrl) {
@@ -300,7 +279,7 @@ export default function DrawerPage() {
         const data = await res.json()
         const updatedMetadata = { ...el.metadata, summary: data.content }
         await supabase.from('elements').update({ metadata: updatedMetadata }).eq('id', el.id)
-        loadDrawer()
+        loadJots()
       }
     } catch (err) { console.error('Mini spark error:', err) }
     finally { setMiniSparkLoading(null) }
@@ -317,7 +296,7 @@ export default function DrawerPage() {
     await supabase.from('elements').update({ content: contentDraft.trim() }).eq('id', el.id)
     setEditingContentId(null)
     setContentDraft('')
-    loadDrawer()
+    loadJots()
   }
 
   function cancelEditContent() {
@@ -338,7 +317,7 @@ export default function DrawerPage() {
     await supabase.from('elements').update({ metadata: updatedMetadata }).eq('id', el.id)
     setEditingNoteId(null)
     setNoteDraft('')
-    loadDrawer()
+    loadJots()
   }
 
   function cancelEditNote() {
@@ -346,48 +325,41 @@ export default function DrawerPage() {
     setNoteDraft('')
   }
 
-  // ── Actions ──
+  // ── Send to Idea ──
   async function sendToIdea(elementId: string, ideaId: string) {
     const ideaTitle = ideas.find(i => i.id === ideaId)?.title || 'Idea'
-    const el = elements.find(e => e.id === elementId)
-    const meta = { ...(el?.metadata || {}) } as Record<string, unknown>
-    delete meta.drawer
-
-    await supabase.from('elements').update({ idea_id: ideaId, metadata: meta }).eq('id', elementId)
+    await supabase.from('elements').update({ idea_id: ideaId }).eq('id', elementId)
     setElements(prev => prev.filter(e => e.id !== elementId))
     setSendPickerFor(null)
     setOpenMenuId(null)
     showToast(`Sent to "${ideaTitle}"`)
   }
 
+  // ── Delete ──
   async function deleteElement(elementId: string) {
     await supabase.from('elements').delete().eq('id', elementId)
     setElements(prev => prev.filter(e => e.id !== elementId))
     setConfirmDeleteId(null)
-    setOpenMenuId(null)
     showToast('Deleted')
   }
 
+  // ── Render helpers ──
   function getMetaString(el: Element): string {
     const meta = el.metadata || {}
     const parts: string[] = []
     parts.push(el.type.toUpperCase())
-    // Read with legacy fallback
     const elUrl = metaUrl(meta)
     if (el.type === 'article' && elUrl) {
       try { parts.push(new URL(elUrl).hostname.replace('www.', '')) } catch { /* skip */ }
     }
     if (el.type === 'file') parts.push(metaFilename(meta))
     const d = new Date(el.created_at)
-    const month = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
-    const day = d.getDate()
-    parts.push(`${month} ${day}`)
+    parts.push(`${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${d.getDate()}`)
     return parts.join(' · ')
   }
 
   function renderElementContent(el: Element) {
     const meta = el.metadata || {}
-    // Read with legacy fallback
     const elUrl = metaUrl(meta)
 
     if (el.type === 'article') {
@@ -399,7 +371,7 @@ export default function DrawerPage() {
               {elUrl ? <a href={elUrl} target="_blank" rel="noopener noreferrer" className={styles.articleLink}>{title}</a> : title}
             </div>
           )}
-          {meta.description && <div className={styles.articleDesc}>{meta.description as string}</div>}
+          {meta.description && <ExpandableText text={String(meta.description)} className={styles.articleDesc} lines={3} />}
           {!meta.title && el.content && elUrl && <div className={styles.articleUrl}>{el.content}</div>}
         </>
       )
@@ -408,20 +380,12 @@ export default function DrawerPage() {
     if (el.type === 'image') {
       const imageUrl = meta.storage_path
         ? supabase.storage.from('images').getPublicUrl(meta.storage_path as string).data.publicUrl
-        : null
-      return (
-        <>
-          {imageUrl ? (
-            <div className={styles.imageWrapper}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt={el.content || 'Image'} className={styles.image} />
-            </div>
-          ) : (
-            <div className={styles.imagePlaceholder}>Image</div>
-          )}
-          {el.content && <div className={styles.caption}>{el.content}</div>}
-        </>
-      )
+        : metaUrl(meta)
+      
+      if (imageUrl) {
+        return <ImageThumbnail src={imageUrl} alt={el.content || 'Image'} caption={el.content || undefined} />
+      }
+      return <div className={styles.imagePlaceholder}>Image</div>
     }
 
     if (el.type === 'file') {
@@ -435,7 +399,7 @@ export default function DrawerPage() {
       )
     }
 
-    return el.content ? <div className={styles.thoughtText}>{el.content}</div> : null
+    return el.content ? <ExpandableText text={el.content} className={styles.thoughtText} lines={4} /> : null
   }
 
   if (loading) {
@@ -457,37 +421,47 @@ export default function DrawerPage() {
 
       <main className={styles.container}>
         <header className={styles.header}>
-          <h1 className={styles.title}>Drawer</h1>
+          <h1 className={styles.title}>Jots</h1>
           <span className={styles.count}>{elements.length} {elements.length === 1 ? 'item' : 'items'}</span>
         </header>
 
-        {/* Quick Add — matches Idea page: textarea, then [Post] [•••] row */}
+        {/* Quick Add */}
         <div className={styles.quickAdd}>
-          <textarea
+          <input
             ref={quickAddRef}
             value={quickAdd}
-            onChange={(e) => { setQuickAdd(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
+            onChange={(e) => setQuickAdd(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuickAdd() } }}
             onPaste={handlePaste}
-            placeholder="Stash a thought, paste a link..."
+            placeholder="Add a thought, link..."
             className={styles.quickAddInput}
-            rows={1}
           />
           <div className={styles.quickAddActions}>
             {quickAdd.trim() && (
               <button onClick={handleQuickAdd} className={styles.postBtn}>Post</button>
             )}
-            <span className={styles.quickAddMore} onClick={() => setShowAddOptions(true)}>•••</span>
+            <div className={styles.menuWrapper}>
+              <button className={styles.moreBtn} onClick={() => setShowAddOptions(!showAddOptions)}>•••</button>
+              {showAddOptions && (
+                <div className={styles.dropMenu}>
+                  {isMobile && (
+                    <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
+                  )}
+                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); imageInputRef.current?.click() }}>Add Image</button>
+                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); fileInputRef.current?.click() }}>Add File</button>
+                </div>
+              )}
+            </div>
           </div>
-          <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileSelected} />
+          <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.zip" style={{ display: 'none' }} onChange={handleFileSelected} />
           <input ref={imageInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileSelected} />
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFileSelected} />
         </div>
 
         {elements.length === 0 ? (
           <div className={styles.empty}>
-            <p>Drawer is empty.</p>
-            <p className={styles.muted}>Stash thoughts, links, and files here for later — things that don't belong to an Idea yet.</p>
+            <p>No jots yet.</p>
+            <p className={styles.muted}>Quick thoughts, links, and files that don't belong to an idea yet.</p>
           </div>
         ) : (
           <div className={styles.elementList}>
@@ -513,7 +487,7 @@ export default function DrawerPage() {
                   <div className={styles.elementContent}>{renderElementContent(el)}</div>
                 )}
 
-                {/* Note display - no "Note:" prefix, no shaded background */}
+                {/* Note display */}
                 {typeof el.metadata?.note === 'string' && editingNoteId !== el.id && editingContentId !== el.id && (
                   <div className={styles.noteDisplay}>
                     {el.metadata.note}
@@ -549,12 +523,6 @@ export default function DrawerPage() {
                 {editingNoteId !== el.id && editingContentId !== el.id && (
                   <div className={styles.actionBar}>
                     <div className={styles.actionBarLeft}>
-                      {/* Edit - only for user thoughts */}
-                      {el.type === 'thought' && el.source === 'user' && (
-                        <button onClick={() => startEditContent(el)} className={styles.actionBtn}>
-                          Edit
-                        </button>
-                      )}
                       <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                         {el.metadata?.note ? 'Edit note' : '+ Add note'}
                       </button>
@@ -572,6 +540,9 @@ export default function DrawerPage() {
                       <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === el.id ? null : el.id) }} className={styles.moreBtn}>•••</button>
                       {openMenuId === el.id && (
                         <div className={styles.dropMenu}>
+                          {el.type === 'thought' && el.source === 'user' && (
+                            <button className={styles.dropMenuItem} onClick={() => { setOpenMenuId(null); startEditContent(el) }}>Edit</button>
+                          )}
                           <button className={styles.dropMenuItem} onClick={() => setSendPickerFor(el.id)}>Send to Idea</button>
                           <div className={styles.dropMenuDivider} />
                           <button className={`${styles.dropMenuItem} ${styles.dangerItem}`} onClick={() => setConfirmDeleteId(el.id)}>Delete</button>
@@ -592,7 +563,7 @@ export default function DrawerPage() {
           <div className={styles.overlay} onClick={() => { setSendPickerFor(null); setOpenMenuId(null) }} />
           <div className={styles.destModal}>
             <div className={styles.destModalHeader}>
-              <span className={styles.destModalTitle}>Where does this go?</span>
+              <span className={styles.destModalTitle}>Send to Idea</span>
               <button onClick={() => { setSendPickerFor(null); setOpenMenuId(null) }} className={styles.closeBtn}>✕</button>
             </div>
             <div className={styles.destList}>
@@ -610,21 +581,6 @@ export default function DrawerPage() {
                 ))
               )}
             </div>
-          </div>
-        </>
-      )}
-
-      {/* ===== ADD OPTIONS MODAL (•••) ===== */}
-      {showAddOptions && (
-        <>
-          <div className={styles.overlay} onClick={() => setShowAddOptions(false)} />
-          <div className={styles.addOptionsModal}>
-            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); imageInputRef.current?.click() }}>Choose image</button>
-            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); fileInputRef.current?.click() }}>Add file</button>
-            <button className={styles.addOption} onClick={handlePasteLinkOption}>Paste link</button>
-            {isMobile && (
-              <button className={styles.addOption} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take photo</button>
-            )}
           </div>
         </>
       )}

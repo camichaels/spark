@@ -26,7 +26,7 @@ export default function Home() {
   const [showNew, setShowNew] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [inboxCount, setInboxCount] = useState(0)
-  const [drawerCount, setDrawerCount] = useState(0)
+  const [jotsCount, setJotsCount] = useState(0)
   const router = useRouter()
 
   // ••• Menu
@@ -172,21 +172,13 @@ export default function Home() {
   }
 
   async function loadCounts() {
-    const { count: inbox } = await supabase
+    // Jots = all elements without an idea_id (no more inbox/drawer distinction)
+    const { count: jots } = await supabase
       .from('elements')
       .select('*', { count: 'exact', head: true })
       .is('idea_id', null)
       .eq('is_archived', false)
-      .or('metadata->>drawer.is.null,metadata->>drawer.neq.true')
-    setInboxCount(inbox || 0)
-
-    const { count: drawer } = await supabase
-      .from('elements')
-      .select('*', { count: 'exact', head: true })
-      .is('idea_id', null)
-      .eq('is_archived', false)
-      .eq('metadata->>drawer', 'true')
-    setDrawerCount(drawer || 0)
+    setJotsCount(jots || 0)
   }
 
   // Sorted ideas for the destination picker: alphabetized by title
@@ -249,12 +241,9 @@ export default function Home() {
       is_archived: false,
     }
 
-    if (target === 'drawer') {
+    if (target === 'jots') {
       elementData.idea_id = null
-      elementData.metadata = { ...(elementData.metadata as object), drawer: 'true' }
-    } else if (target === 'inbox') {
-      elementData.idea_id = null
-      // Inbox items have no drawer flag and no idea_id
+      // Jots = no idea_id, that's it
     } else {
       elementData.idea_id = target
     }
@@ -293,10 +282,8 @@ export default function Home() {
 
     if (!error) {
       let targetName: string
-      if (target === 'drawer') {
-        targetName = 'Drawer'
-      } else if (target === 'inbox') {
-        targetName = 'Inbox'
+      if (target === 'jots') {
+        targetName = 'Jots'
       } else {
         targetName = ideas.find(i => i.id === target)?.title || 'Idea'
       }
@@ -627,13 +614,13 @@ export default function Home() {
           />
         </div>
 
-        {/* Inbox · Drawer — outlined pill buttons */}
+        {/* Jots · Scouts — outlined pill buttons */}
         <div className={styles.secondaryNav}>
-          <button className={styles.pillBtn} onClick={() => router.push('/inbox')}>
-            Inbox{inboxCount > 0 && <span className={styles.pillCountMuted}>{inboxCount}</span>}
+          <button className={styles.pillBtn} onClick={() => router.push('/jots')}>
+            Jots{jotsCount > 0 && <span className={styles.pillCountMuted}>{jotsCount}</span>}
           </button>
-          <button className={styles.pillBtn} onClick={() => router.push('/drawer')}>
-            Drawer{drawerCount > 0 && <span className={styles.pillCountMuted}>{drawerCount}</span>}
+          <button className={styles.pillBtn} onClick={() => router.push('/scouts')}>
+            Scouts
           </button>
         </div>
 
@@ -670,15 +657,9 @@ export default function Home() {
               <div className={styles.destDivider} />
               <button
                 className={styles.destItem}
-                onClick={() => sendToDestination('inbox')}
+                onClick={() => sendToDestination('jots')}
               >
-                Inbox
-              </button>
-              <button
-                className={styles.destItem}
-                onClick={() => sendToDestination('drawer')}
-              >
-                Drawer
+                Jots
               </button>
             </div>
           </div>
