@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import styles from './inbox.module.css'
+import ImageThumbnail from '@/components/ImageThumbnail'
+import ExpandableText from '@/components/ExpandableText'
 
 type Element = {
   id: string
@@ -158,7 +160,7 @@ export default function InboxPage() {
             </div>
           )}
           {meta.description && (
-            <div className={styles.articleDesc}>{String(meta.description)}</div>
+            <ExpandableText text={String(meta.description)} className={styles.articleDesc} lines={3} />
           )}
         </>
       )
@@ -167,20 +169,12 @@ export default function InboxPage() {
     if (el.type === 'image') {
       const imageUrl = meta.storage_path
         ? supabase.storage.from('images').getPublicUrl(meta.storage_path as string).data.publicUrl
-        : null
-      return (
-        <>
-          {imageUrl ? (
-            <div className={styles.imageWrapper}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt={el.content || 'Image'} className={styles.image} />
-            </div>
-          ) : (
-            <div className={styles.imagePlaceholder}>Image</div>
-          )}
-          {el.content && <div className={styles.caption}>{el.content}</div>}
-        </>
-      )
+        : metaUrl(meta)
+      
+      if (imageUrl) {
+        return <ImageThumbnail src={imageUrl} alt={el.content || 'Image'} caption={el.content || undefined} />
+      }
+      return <div className={styles.imagePlaceholder}>Image</div>
     }
 
     if (el.type === 'file') {
@@ -195,7 +189,7 @@ export default function InboxPage() {
     }
 
     return el.content ? (
-      <div className={styles.thoughtText}>{el.content}</div>
+      <ExpandableText text={el.content} className={styles.thoughtText} lines={4} />
     ) : null
   }
 
@@ -241,14 +235,11 @@ export default function InboxPage() {
                 {/* Simple triage action bar */}
                 <div className={styles.triageBar}>
                   <button
-  className={styles.triageBtn}
-  onClick={() => {
-    console.log('Setting sendPickerFor to:', el.id)
-    setSendPickerFor(el.id)
-  }}
->
-  Send to Idea
-</button>
+                    className={styles.triageBtn}
+                    onClick={() => setSendPickerFor(el.id)}
+                  >
+                    Send to Idea
+                  </button>
                   <button 
                     className={styles.triageBtn} 
                     onClick={() => moveToDrawer(el.id)}

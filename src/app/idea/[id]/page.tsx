@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, use } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import styles from './idea.module.css'
+import ImageThumbnail from '@/components/ImageThumbnail'
+import ExpandableText from '@/components/ExpandableText'
 
 type Idea = {
   id: string
@@ -591,49 +593,33 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
           <a href={elUrl} target="_blank" rel="noopener noreferrer" className={styles.articleTitleLink}>
             {title}
           </a>
-          {description && <div className={styles.articleDescription}>{description}</div>}
+          {description && <ExpandableText text={description} className={styles.articleDescription} lines={3} />}
         </div>
       )
     }
 
     if (el.type === 'image') {
-      if (elUrl) {
-        return (
-          <div className={styles.imageWrapper}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={elUrl} alt="" className={styles.elementImage} />
-          </div>
-        )
-      }
+      let imageUrl = elUrl
       // Fallback: try to reconstruct from storage_path
-      if (el.metadata?.storage_path) {
+      if (!imageUrl && el.metadata?.storage_path) {
         const bucket = (el.metadata.bucket as string) || 'images'
-        const reconstructedUrl = supabase.storage.from(bucket).getPublicUrl(el.metadata.storage_path as string).data.publicUrl
-        return (
-          <div className={styles.imageWrapper}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={reconstructedUrl} alt="" className={styles.elementImage} />
-          </div>
-        )
+        imageUrl = supabase.storage.from(bucket).getPublicUrl(el.metadata.storage_path as string).data.publicUrl
+      }
+      if (imageUrl) {
+        return <ImageThumbnail src={imageUrl} alt="" />
       }
     }
 
     if (el.type === 'file') {
-      if (elUrl) {
-        return (
-          <a href={elUrl} target="_blank" rel="noopener noreferrer" className={styles.fileCard}>
-            <span className={styles.fileIcon}>📄</span>
-            <span className={styles.fileName}>{elFilename}</span>
-            <span className={styles.fileAction}>Open ↗</span>
-          </a>
-        )
-      }
+      let fileUrl = elUrl
       // Fallback: reconstruct URL from storage_path
-      if (el.metadata?.storage_path) {
+      if (!fileUrl && el.metadata?.storage_path) {
         const bucket = (el.metadata.bucket as string) || 'files'
-        const reconstructedUrl = supabase.storage.from(bucket).getPublicUrl(el.metadata.storage_path as string).data.publicUrl
+        fileUrl = supabase.storage.from(bucket).getPublicUrl(el.metadata.storage_path as string).data.publicUrl
+      }
+      if (fileUrl) {
         return (
-          <a href={reconstructedUrl} target="_blank" rel="noopener noreferrer" className={styles.fileCard}>
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={styles.fileCard}>
             <span className={styles.fileIcon}>📄</span>
             <span className={styles.fileName}>{elFilename}</span>
             <span className={styles.fileAction}>Open ↗</span>
@@ -642,7 +628,8 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
       }
     }
 
-    return <div>{el.content}</div>
+    // Default: thought text with expandable
+    return el.content ? <ExpandableText text={el.content} className={styles.elementContent} lines={4} /> : null
   }
 
   function renderSparkLabel(el: Element): string {

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import styles from './drawer.module.css'
+import ImageThumbnail from '@/components/ImageThumbnail'
+import ExpandableText from '@/components/ExpandableText'
 
 type Element = {
   id: string
@@ -357,48 +359,44 @@ export default function DrawerPage() {
     setNoteDraft('')
   }
 
-  // ── Actions ──
+  // ── Send to Idea ──
   async function sendToIdea(elementId: string, ideaId: string) {
     const ideaTitle = ideas.find(i => i.id === ideaId)?.title || 'Idea'
     const el = elements.find(e => e.id === elementId)
-    const meta = { ...(el?.metadata || {}) } as Record<string, unknown>
-    delete meta.drawer
-
-    await supabase.from('elements').update({ idea_id: ideaId, metadata: meta }).eq('id', elementId)
+    const updatedMeta = { ...(el?.metadata || {}) }
+    delete updatedMeta.drawer
+    await supabase.from('elements').update({ idea_id: ideaId, metadata: updatedMeta }).eq('id', elementId)
     setElements(prev => prev.filter(e => e.id !== elementId))
     setSendPickerFor(null)
     setOpenMenuId(null)
     showToast(`Sent to "${ideaTitle}"`)
   }
 
+  // ── Delete ──
   async function deleteElement(elementId: string) {
     await supabase.from('elements').delete().eq('id', elementId)
     setElements(prev => prev.filter(e => e.id !== elementId))
     setConfirmDeleteId(null)
-    setOpenMenuId(null)
     showToast('Deleted')
   }
 
+  // ── Render helpers ──
   function getMetaString(el: Element): string {
     const meta = el.metadata || {}
     const parts: string[] = []
     parts.push(el.type.toUpperCase())
-    // Read with legacy fallback
     const elUrl = metaUrl(meta)
     if (el.type === 'article' && elUrl) {
       try { parts.push(new URL(elUrl).hostname.replace('www.', '')) } catch { /* skip */ }
     }
     if (el.type === 'file') parts.push(metaFilename(meta))
     const d = new Date(el.created_at)
-    const month = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
-    const day = d.getDate()
-    parts.push(`${month} ${day}`)
+    parts.push(`${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${d.getDate()}`)
     return parts.join(' · ')
   }
 
   function renderElementContent(el: Element) {
     const meta = el.metadata || {}
-    // Read with legacy fallback
     const elUrl = metaUrl(meta)
 
     if (el.type === 'article') {
@@ -410,7 +408,7 @@ export default function DrawerPage() {
               {elUrl ? <a href={elUrl} target="_blank" rel="noopener noreferrer" className={styles.articleLink}>{title}</a> : title}
             </div>
           )}
-          {meta.description && <div className={styles.articleDesc}>{meta.description as string}</div>}
+          {meta.description && <ExpandableText text={String(meta.description)} className={styles.articleDesc} lines={3} />}
           {!meta.title && el.content && elUrl && <div className={styles.articleUrl}>{el.content}</div>}
         </>
       )
@@ -419,20 +417,12 @@ export default function DrawerPage() {
     if (el.type === 'image') {
       const imageUrl = meta.storage_path
         ? supabase.storage.from('images').getPublicUrl(meta.storage_path as string).data.publicUrl
-        : null
-      return (
-        <>
-          {imageUrl ? (
-            <div className={styles.imageWrapper}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt={el.content || 'Image'} className={styles.image} />
-            </div>
-          ) : (
-            <div className={styles.imagePlaceholder}>Image</div>
-          )}
-          {el.content && <div className={styles.caption}>{el.content}</div>}
-        </>
-      )
+        : metaUrl(meta)
+      
+      if (imageUrl) {
+        return <ImageThumbnail src={imageUrl} alt={el.content || 'Image'} caption={el.content || undefined} />
+      }
+      return <div className={styles.imagePlaceholder}>Image</div>
     }
 
     if (el.type === 'file') {
@@ -446,7 +436,7 @@ export default function DrawerPage() {
       )
     }
 
-    return el.content ? <div className={styles.thoughtText}>{el.content}</div> : null
+    return el.content ? <ExpandableText text={el.content} className={styles.thoughtText} lines={4} /> : null
   }
 
   if (loading) {
