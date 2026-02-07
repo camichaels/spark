@@ -886,11 +886,6 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                   {editingNoteId !== el.id && editingContentId !== el.id && (
                     <div className={styles.actionBar}>
                       <div className={styles.actionBarLeft}>
-                        {el.type === 'thought' && el.source === 'user' && (
-                          <button onClick={() => startEditContent(el)} className={styles.actionBtn}>
-                            Edit
-                          </button>
-                        )}
                         <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                           {!!el.metadata?.note ? 'Edit note' : '+ Add note'}
                         </button>
@@ -915,6 +910,9 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                         <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === el.id ? null : el.id) }} className={styles.moreBtn}>•••</button>
                         {openMenuId === el.id && (
                           <div className={styles.dropMenu}>
+                            {el.type === 'thought' && el.source === 'user' && (
+                              <button className={styles.dropMenuItem} onClick={() => { setOpenMenuId(null); startEditContent(el) }}>Edit</button>
+                            )}
                             <button className={styles.dropMenuItem} onClick={() => archiveElement(el)}>Archive</button>
                             <div className={styles.dropMenuDivider} />
                             <button className={`${styles.dropMenuItem} ${styles.dangerItem}`} onClick={() => deleteElement(el)}>Delete</button>

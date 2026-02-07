@@ -566,12 +566,6 @@ export default function DrawerPage() {
                 {editingNoteId !== el.id && editingContentId !== el.id && (
                   <div className={styles.actionBar}>
                     <div className={styles.actionBarLeft}>
-                      {/* Edit - only for user thoughts */}
-                      {el.type === 'thought' && el.source === 'user' && (
-                        <button onClick={() => startEditContent(el)} className={styles.actionBtn}>
-                          Edit
-                        </button>
-                      )}
                       <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                         {el.metadata?.note ? 'Edit note' : '+ Add note'}
                       </button>
@@ -602,6 +596,9 @@ export default function DrawerPage() {
                       <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === el.id ? null : el.id) }} className={styles.moreBtn}>•••</button>
                       {openMenuId === el.id && (
                         <div className={styles.dropMenu}>
+                          {el.type === 'thought' && el.source === 'user' && (
+                            <button className={styles.dropMenuItem} onClick={() => { setOpenMenuId(null); startEditContent(el) }}>Edit</button>
+                          )}
                           <button className={styles.dropMenuItem} onClick={() => setSendPickerFor(el.id)}>Send to Idea</button>
                           <div className={styles.dropMenuDivider} />
                           <button className={`${styles.dropMenuItem} ${styles.dangerItem}`} onClick={() => setConfirmDeleteId(el.id)}>Delete</button>
