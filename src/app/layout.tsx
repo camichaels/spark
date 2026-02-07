@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import ThemeInitializer from '@/components/ThemeInitializer'
 
 export const metadata: Metadata = {
   title: 'Spark',
@@ -28,7 +29,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#D97B0D" />
       </head>
-      <body>{children}</body>
+      <body>
+        <ThemeInitializer />
+        {children}
+      </body>
     </html>
   )
 }

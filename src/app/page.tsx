@@ -51,6 +51,7 @@ export default function Home() {
   const [captureText, setCaptureText] = useState('')
   const captureRef = useRef<HTMLInputElement>(null)
   const [showAddOptions, setShowAddOptions] = useState(false)
+  const addOptionsRef = useRef<HTMLDivElement>(null)
   const captureFileRef = useRef<HTMLInputElement>(null)
   const captureImageRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -90,6 +91,17 @@ export default function Home() {
     if (showMenu) document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
   }, [showMenu])
+
+  // Close add options ••• menu on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (addOptionsRef.current && !addOptionsRef.current.contains(e.target as Node)) {
+        setShowAddOptions(false)
+      }
+    }
+    if (showAddOptions) document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [showAddOptions])
 
   // Detect mobile/touch device for "Take photo" option
   useEffect(() => {
@@ -572,7 +584,7 @@ export default function Home() {
             {(captureText.trim() || stagedFile) && (
               <button onClick={handlePostTap} className={styles.capturePost}>Post</button>
             )}
-            <div className={styles.menuWrapper}>
+            <div className={styles.menuWrapper} ref={addOptionsRef}>
               <button
                 onClick={() => setShowAddOptions(!showAddOptions)}
                 className={styles.captureMore}
