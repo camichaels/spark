@@ -1,782 +1,128 @@
-/* Page */
-.page {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  font-family: 'DM Sans', system-ui;
-  color: var(--text-primary);
-}
-
-.center {
-  text-align: center;
-  padding: 80px 20px;
-}
-
-.muted {
-  color: var(--text-tertiary);
-  margin-top: 6px;
-  font-size: 14px;
-}
-
-/* Nav */
-.nav {
-  padding: 16px 20px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.backBtn {
-  background: none;
-  border: none;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 6px 0;
-  transition: color 0.2s;
-}
-
-.backBtn:hover {
-  color: var(--text-primary);
-}
-
-/* Container */
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 20px 100px;
-}
-
-/* Header */
-.header {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.title {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 22px;
-  font-weight: 500;
-}
-
-.count {
-  font-size: 13px;
-  color: var(--text-tertiary);
-}
-
-/* ========================================
-   Quick Add — matches Idea page layout
-   textarea on top, [Post] [•••] row below
-   ======================================== */
-.quickAdd {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 20px;
-  transition: border-color 0.2s;
-}
-
-.quickAdd:focus-within {
-  border-color: var(--border-medium);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.quickAddInput {
-  width: 100%;
-  border: none;
-  outline: none;
-  font-size: 15px;
-  font-family: 'DM Sans', system-ui;
-  color: var(--text-primary);
-  background: transparent;
-  resize: none;
-  line-height: 1.5;
-  overflow: hidden;
-  min-height: 24px;
-  max-height: 200px;
-}
-
-.quickAddInput::placeholder {
-  color: var(--text-tertiary);
-}
-
-/* Row: [Post] [•••] — right-aligned, same line */
-.quickAddActions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 6px;
-}
-
-.postBtn {
-  background: var(--spark-primary);
-  border: none;
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.postBtn:hover {
-  background: var(--spark-hover);
-}
-
-.quickAddMore {
-  color: var(--text-tertiary);
-  cursor: pointer;
-  font-size: 18px;
-  letter-spacing: 2px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.quickAddMore:hover {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-}
-
-/* ========================================
-   Add Options Modal (••• from quick-add)
-   Centered, text-only, no icons
-   ======================================== */
-.addOptionsModal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg-card);
-  border-radius: 10px;
-  min-width: 240px;
-  z-index: 1001;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  padding: 8px 0;
-  animation: modalIn 0.15s ease-out;
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-}
-
-.addOption {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 14px 20px;
-  font-size: 15px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.addOption:hover {
-  background: var(--bg-secondary);
-}
-
-/* Empty state */
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-secondary);
-}
-
-/* Element list */
-.elementList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.element {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-
-.elementMeta {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-tertiary);
-  margin-bottom: 8px;
-}
-
-.elementContent {
-  margin-bottom: 10px;
-}
-
-.thoughtText {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-}
-
-.articleTitle {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.4;
-  margin-bottom: 4px;
-}
-
-.articleLink {
-  color: var(--text-primary);
-  text-decoration: none;
-}
-
-.articleLink:hover {
-  color: var(--link-blue, #4A7B94);
-}
-
-.articleDesc {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin-top: 4px;
-}
-
-.articleUrl {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  word-break: break-all;
-}
-
-.imageWrapper {
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 6px;
-  max-height: 200px;
-}
-
-.image {
-  width: 100%;
-  height: auto;
-  max-height: 200px;
-  object-fit: contain;
-  display: block;
-  background: var(--bg-secondary);
-}
-
-.imagePlaceholder {
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-tertiary);
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.caption {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.fileCard {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-}
-
-.fileIcon {
-  background: var(--spark-bg);
-  color: var(--spark-primary);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 4px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.02em;
-}
-
-.fileName {
-  font-size: 14px;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ========================================
-   Content Editing (for user thoughts)
-   Matches Ideas page pattern
-   ======================================== */
-.contentEditor {
-  margin-top: 8px;
-}
-
-.contentTextarea {
-  width: 100%;
-  min-height: 80px;
-  padding: 12px;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 15px;
-  line-height: 1.5;
-  resize: none;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-.contentTextarea:focus {
-  outline: none;
-  border-color: var(--spark-primary);
-}
-
-.contentActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-/* ========================================
-   Note Display & Editing
-   No "Note:" prefix, no shaded background
-   ======================================== */
-.noteDisplay {
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-primary);
-}
-
-.noteEditor {
-  margin-top: 8px;
-}
-
-.noteTextarea {
-  width: 100%;
-  min-height: 80px;
-  padding: 12px;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 14px;
-  line-height: 1.6;
-  resize: none;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-.noteTextarea:focus {
-  outline: none;
-  border-color: var(--spark-primary);
-}
-
-.noteTextarea::placeholder {
-  color: var(--text-tertiary);
-}
-
-.noteActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-/* Shared Cancel/Save buttons */
-.cancelBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  background: none;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.cancelBtn:hover {
-  border-color: var(--border-medium);
-}
-
-.saveBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: var(--text-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.saveBtn:hover {
-  opacity: 0.9;
-}
-
-/* ========================================
-   Mini-spark Results
-   ======================================== */
-.miniSparkResult {
-  background: var(--spark-bg);
-  border-left: 3px solid var(--spark-primary);
-  padding: 10px 12px;
-  border-radius: 0 8px 8px 0;
-  margin-top: 10px;
-}
-
-.miniSparkLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--spark-primary);
-  margin-bottom: 4px;
-}
-
-.miniSparkContent {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text-primary);
-}
-
-.miniSparkThinking {
-  color: var(--spark-primary);
-  font-style: italic;
-}
-
-/* ========================================
-   Action Bar — matches Idea page pattern
-   ======================================== */
-.actionBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 10px;
-  margin-top: 10px;
-  border-top: 1px solid var(--border-light);
-}
-
-.actionBarLeft {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.actionBtn {
-  padding: 6px 10px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: none;
-  border: none;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.actionBtn:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-.actionBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Mini-spark buttons - lighter hover (spark-bg instead of bg-secondary) */
-.miniSparkBtn {
-  color: var(--spark-primary);
-}
-
-.miniSparkBtn:hover {
-  color: var(--spark-primary);
-  background: var(--spark-bg);
-}
-
-/* ========================================
-   ••• Menu (dropdown) - right justified
-   ======================================== */
-.menuWrapper {
-  position: relative;
-}
-
-.moreBtn {
-  background: none;
-  border: none;
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.moreBtn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-}
-
-.dropMenu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  min-width: 140px;
-  z-index: 100;
-  padding: 4px 0;
-  animation: dropIn 0.12s ease-out;
-}
-
-@keyframes dropIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropMenuItem {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 14px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.dropMenuItem:hover {
-  background: var(--bg-secondary);
-}
-
-.dropMenuDivider {
-  height: 1px;
-  background: var(--border-light);
-  margin: 4px 0;
-}
-
-.dangerItem {
-  color: var(--danger);
-}
-
-.dangerItem:hover {
-  background: #fef2f2;
-}
-
-/* ========================================
-   Destination Modal (Send to Idea)
-   ======================================== */
-.destModal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg-card);
-  border-radius: 14px;
-  width: min(360px, calc(100vw - 40px));
-  max-height: 70vh;
-  overflow: hidden;
-  z-index: 1001;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  animation: modalIn 0.15s ease-out;
-}
-
-.destModalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.destModalTitle {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.closeBtn {
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.closeBtn:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-.destList {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-.destItem {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 14px 20px;
-  font-size: 15px;
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-weight: 500;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.destItem:hover {
-  background: var(--bg-secondary);
-}
-
-/* ========================================
-   Shared: Overlay & Dialog
-   ======================================== */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay-bg);
-  z-index: 1000;
-}
-
-.dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg-card);
-  border-radius: 14px;
-  width: min(340px, calc(100vw - 40px));
-  z-index: 1001;
-  padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
-.dialogMessage {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.dialogSubtext {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
-}
-
-.dialogActions {
-  display: flex;
-  gap: 10px;
-}
-
-.dialogCancel {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: none;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.dialogCancel:hover {
-  border-color: var(--border-medium);
-}
-
-.dialogConfirm {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: var(--danger);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.dialogConfirm:hover {
-  opacity: 0.9;
-}
+/* DRAWER PAGE - Styles */
+
+.page { min-height: 100vh; background: var(--bg-primary); font-family: 'DM Sans', system-ui; color: var(--text-primary); }
+.center { text-align: center; padding: 80px 20px; }
+.muted { color: var(--text-tertiary); margin-top: 6px; font-size: 14px; }
+
+.nav { padding: 16px 20px; max-width: 600px; margin: 0 auto; }
+.backBtn { background: none; border: none; font-size: 14px; font-family: 'DM Sans', system-ui; font-weight: 500; color: var(--text-secondary); cursor: pointer; padding: 6px 0; transition: color 0.2s; }
+.backBtn:hover { color: var(--text-primary); }
+
+.container { max-width: 600px; margin: 0 auto; padding: 0 20px 100px; }
+
+.header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; }
+.title { font-family: 'Source Serif 4', Georgia, serif; font-size: 22px; font-weight: 500; }
+.count { font-size: 13px; color: var(--text-tertiary); }
+
+/* Quick Add */
+.quickAdd { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; transition: border-color 0.2s; }
+.quickAdd:focus-within { border-color: var(--border-medium); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+.quickAddInput { width: 100%; border: none; outline: none; font-size: 15px; font-family: 'DM Sans', system-ui; color: var(--text-primary); background: transparent; resize: none; line-height: 1.5; overflow: hidden; min-height: 24px; max-height: 200px; }
+.quickAddInput::placeholder { color: var(--text-tertiary); }
+.quickAddActions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 6px; }
+.postBtn { background: var(--spark-primary); border: none; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-family: 'DM Sans', system-ui; font-weight: 600; color: white; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.postBtn:hover { background: var(--spark-hover); }
+.quickAddMore { color: var(--text-tertiary); cursor: pointer; font-size: 18px; letter-spacing: 2px; padding: 4px 8px; border-radius: 4px; transition: all 0.2s; flex-shrink: 0; }
+.quickAddMore:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+
+/* Add Options Modal */
+.addOptionsModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-card); border-radius: 10px; min-width: 240px; z-index: 1001; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); padding: 8px 0; animation: modalIn 0.15s ease-out; }
+@keyframes modalIn { from { opacity: 0; transform: translate(-50%, -48%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+.addOption { display: block; width: 100%; text-align: left; padding: 14px 20px; font-size: 15px; font-family: 'DM Sans', system-ui; font-weight: 500; background: none; border: none; color: var(--text-primary); cursor: pointer; transition: background 0.15s; }
+.addOption:hover { background: var(--bg-secondary); }
+
+.empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+
+/* Element Cards */
+.elementList { display: flex; flex-direction: column; gap: 12px; }
+.element { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px 16px; }
+.elementMeta { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-tertiary); margin-bottom: 8px; }
+.elementContent { margin-bottom: 10px; }
+
+.thoughtText { font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; line-height: 1.6; color: var(--text-primary); white-space: pre-wrap; }
+.articleTitle { font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; font-weight: 500; line-height: 1.4; margin-bottom: 4px; }
+.articleLink { color: var(--text-primary); text-decoration: none; }
+.articleLink:hover { color: var(--link-blue); }
+.articleDesc { font-size: 13px; line-height: 1.5; color: var(--text-secondary); margin-top: 4px; }
+.articleUrl { font-size: 13px; color: var(--text-tertiary); word-break: break-all; }
+
+.imageWrapper { border-radius: 8px; overflow: hidden; margin-bottom: 6px; max-height: 200px; }
+.image { width: 100%; height: auto; max-height: 200px; object-fit: contain; display: block; background: var(--bg-secondary); }
+.imagePlaceholder { background: var(--bg-secondary); border-radius: 8px; height: 100px; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 13px; margin-bottom: 6px; }
+.caption { font-size: 13px; color: var(--text-secondary); font-style: italic; }
+
+.fileCard { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-secondary); border-radius: 8px; }
+.fileIcon { background: var(--spark-bg); color: var(--spark-primary); font-size: 10px; font-weight: 700; padding: 4px 6px; border-radius: 4px; letter-spacing: 0.02em; }
+.fileName { font-size: 14px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Content Editing */
+.contentEditor { margin-top: 8px; }
+.contentTextarea { width: 100%; min-height: 80px; padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.5; resize: none; background: var(--bg-primary); color: var(--text-primary); }
+.contentTextarea:focus { outline: none; border-color: var(--spark-primary); }
+.contentActions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+
+/* Note Display & Editing */
+.noteDisplay { margin-top: 12px; padding: 12px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 6px; font-family: 'Source Serif 4', Georgia, serif; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+.noteEditor { margin-top: 8px; }
+.noteTextarea { width: 100%; min-height: 80px; padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; font-family: 'Source Serif 4', Georgia, serif; font-size: 14px; line-height: 1.6; resize: none; background: var(--bg-primary); color: var(--text-primary); }
+.noteTextarea:focus { outline: none; border-color: var(--spark-primary); }
+.noteTextarea::placeholder { color: var(--text-tertiary); }
+.noteActions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+
+/* Buttons */
+.cancelBtn { padding: 8px 14px; font-size: 13px; font-family: 'DM Sans', system-ui; background: none; border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-secondary); cursor: pointer; }
+.cancelBtn:hover { border-color: var(--border-medium); }
+.saveBtn { padding: 8px 14px; font-size: 13px; font-family: 'DM Sans', system-ui; font-weight: 500; background: var(--text-primary); color: white; border: none; border-radius: 8px; cursor: pointer; }
+.saveBtn:hover { opacity: 0.9; }
+
+/* Mini-spark Results */
+.miniSparkResult { background: var(--spark-bg); border-left: 3px solid var(--spark-primary); padding: 10px 12px; border-radius: 0 8px 8px 0; margin-top: 10px; }
+.miniSparkLabel { font-size: 11px; font-weight: 600; color: var(--spark-primary); margin-bottom: 4px; }
+.miniSparkContent { font-size: 14px; line-height: 1.5; color: var(--text-primary); }
+.miniSparkThinking { color: var(--spark-primary); font-style: italic; }
+
+/* Action Bar */
+.actionBar { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border-light); }
+.actionBarLeft { display: flex; align-items: center; gap: 4px; }
+.actionBtn { padding: 6px 10px; font-size: 13px; font-family: 'DM Sans', system-ui; font-weight: 500; background: none; border: none; color: var(--text-tertiary); cursor: pointer; border-radius: 6px; transition: color 0.2s, background 0.2s; }
+.actionBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.actionBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.miniSparkBtn { color: var(--spark-primary); }
+.miniSparkBtn:hover { color: var(--spark-primary); background: var(--spark-bg); }
+
+/* Drop Menu */
+.menuWrapper { position: relative; }
+.moreBtn { background: none; border: none; font-size: 14px; letter-spacing: 1px; color: var(--text-tertiary); cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: all 0.2s; }
+.moreBtn:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+.dropMenu { position: absolute; top: 100%; right: 0; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); min-width: 140px; z-index: 100; padding: 4px 0; animation: dropIn 0.12s ease-out; }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.dropMenuItem { display: block; width: 100%; text-align: left; padding: 10px 14px; font-size: 14px; font-family: 'DM Sans', system-ui; background: none; border: none; color: var(--text-primary); cursor: pointer; transition: background 0.15s; }
+.dropMenuItem:hover { background: var(--bg-secondary); }
+.dropMenuDivider { height: 1px; background: var(--border-light); margin: 4px 0; }
+.dangerItem { color: var(--danger); }
+.dangerItem:hover { background: #fef2f2; }
+
+/* Destination Modal */
+.destModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-card); border-radius: 14px; width: min(360px, calc(100vw - 40px)); max-height: 70vh; overflow: hidden; z-index: 1001; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); animation: modalIn 0.15s ease-out; }
+.destModalHeader { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border-light); }
+.destModalTitle { font-family: 'Source Serif 4', Georgia, serif; font-size: 18px; font-weight: 500; }
+.closeBtn { background: none; border: none; font-size: 18px; color: var(--text-tertiary); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+.closeBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.destList { max-height: 50vh; overflow-y: auto; padding: 8px 0; }
+.destItem { display: block; width: 100%; text-align: left; padding: 14px 20px; font-size: 15px; font-family: 'Source Serif 4', Georgia, serif; font-weight: 500; background: none; border: none; color: var(--text-primary); cursor: pointer; transition: background 0.15s; }
+.destItem:hover { background: var(--bg-secondary); }
+
+/* Dialog & Overlay */
+.overlay { position: fixed; inset: 0; background: var(--overlay-bg); z-index: 1000; }
+.dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-card); border-radius: 14px; width: min(340px, calc(100vw - 40px)); z-index: 1001; padding: 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); text-align: center; }
+.dialogMessage { font-family: 'Source Serif 4', Georgia, serif; font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+.dialogSubtext { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+.dialogActions { display: flex; gap: 10px; }
+.dialogCancel { flex: 1; padding: 10px; font-size: 14px; font-family: 'DM Sans', system-ui; font-weight: 500; background: none; border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-secondary); cursor: pointer; }
+.dialogCancel:hover { border-color: var(--border-medium); }
+.dialogConfirm { flex: 1; padding: 10px; font-size: 14px; font-family: 'DM Sans', system-ui; font-weight: 500; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; }
+.dialogConfirm:hover { opacity: 0.9; }
 
 /* Toast */
-.toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text-primary);
-  color: var(--bg-card);
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  z-index: 2000;
-  animation: toastIn 0.25s ease-out;
-}
-
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
+.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--bg-card); font-size: 14px; font-family: 'DM Sans', system-ui; font-weight: 500; padding: 10px 20px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); z-index: 2000; animation: toastIn 0.25s ease-out; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }

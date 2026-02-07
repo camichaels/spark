@@ -1,86 +1,16 @@
+/* ============================================
+   IDEA PAGE - Unique Styles Only
+   Shared patterns imported from shared.module.css
+   ============================================ */
+
+/* ========================================
+   Page Layout (overrides)
+   ======================================== */
 .page {
   min-height: 100vh;
+  background: var(--bg-primary);
 }
 
-/* Confirm Dialog */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.dialog {
-  background: var(--bg-card);
-  border-radius: 14px;
-  padding: 24px;
-  max-width: 340px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-}
-
-.dialogMessage {
-  font-family: 'DM Sans', system-ui;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.dialogSubtext {
-  font-family: 'DM Sans', system-ui;
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.dialogActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.dialogCancel {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  background: none;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.dialogConfirm {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: var(--text-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.dialogDanger {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: var(--danger, #c0392b);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Nav */
 .nav {
   padding: 16px 20px;
   max-width: 600px;
@@ -103,6 +33,7 @@
   font-family: 'DM Sans', system-ui;
   cursor: pointer;
   padding: 4px 0;
+  transition: color 0.2s;
 }
 
 .backBtn:hover {
@@ -121,7 +52,9 @@
   color: var(--text-tertiary);
 }
 
-/* Header */
+/* ========================================
+   Idea Header
+   ======================================== */
 .header {
   margin-bottom: 28px;
 }
@@ -159,7 +92,9 @@
   font-size: 13px;
 }
 
-/* Current Thinking */
+/* ========================================
+   Current Thinking Section
+   ======================================== */
 .thinking {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -230,30 +165,9 @@
   border-top: 1px solid var(--border-light);
 }
 
-.cancelBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  background: none;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.saveBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: var(--text-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Spark Bar */
+/* ========================================
+   Spark Bar
+   ======================================== */
 .sparkBar {
   margin-bottom: 20px;
   padding: 16px;
@@ -339,6 +253,11 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.customSend:hover {
+  background: var(--spark-hover);
 }
 
 .customSend:disabled {
@@ -370,7 +289,9 @@
   50% { transform: translateY(-2px); }
 }
 
-/* Quick Add */
+/* ========================================
+   Quick Add
+   ======================================== */
 .quickAdd {
   display: flex;
   align-items: center;
@@ -380,12 +301,12 @@
   border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 24px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .quickAdd:focus-within {
   border-color: var(--border-medium);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .quickAddInput {
@@ -417,9 +338,49 @@
   border-radius: 6px;
   cursor: pointer;
   flex-shrink: 0;
+  transition: opacity 0.2s;
 }
 
-/* Shared menu styles */
+.postBtn:hover {
+  opacity: 0.9;
+}
+
+/* Pasted image preview */
+.pastedPreview {
+  position: relative;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.pastedImage {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  display: block;
+}
+
+.pastedRemove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  color: white;
+  border: none;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ========================================
+   Shared Menu Styles
+   ======================================== */
 .menuWrapper {
   position: relative;
 }
@@ -433,10 +394,13 @@
   padding: 4px 6px;
   letter-spacing: 1px;
   line-height: 1;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
 }
 
 .moreBtn:hover {
   color: var(--text-secondary);
+  background: var(--bg-secondary);
 }
 
 .dropMenu {
@@ -447,10 +411,22 @@
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   min-width: 160px;
   z-index: 200;
   overflow: hidden;
+  animation: dropIn 0.12s ease-out;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropMenuItem {
@@ -464,6 +440,7 @@
   text-align: left;
   cursor: pointer;
   color: var(--text-primary);
+  transition: background 0.15s;
 }
 
 .dropMenuItem:hover {
@@ -477,10 +454,16 @@
 }
 
 .dangerItem {
-  color: var(--danger, #c0392b);
+  color: var(--danger);
 }
 
-/* Timeline */
+.dangerItem:hover {
+  background: #fef2f2;
+}
+
+/* ========================================
+   Timeline
+   ======================================== */
 .timelineHeader {
   margin-bottom: 12px;
 }
@@ -491,11 +474,14 @@
   gap: 12px;
 }
 
+/* ========================================
+   Element Cards
+   ======================================== */
 .element {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 10px;
-  padding: 16px;
+  padding: 14px 16px;
 }
 
 .sparkElement {
@@ -546,6 +532,7 @@
   color: var(--text-primary);
 }
 
+/* Image elements */
 .imageWrapper {
   margin: 8px 0;
 }
@@ -557,6 +544,7 @@
   display: block;
 }
 
+/* Article elements */
 .articleTitleLink {
   color: var(--text-primary);
   text-decoration: none;
@@ -564,7 +552,7 @@
 }
 
 .articleTitleLink:hover {
-  color: var(--link-blue, #4A7B94);
+  color: var(--link-blue);
 }
 
 .articleDescription {
@@ -589,7 +577,7 @@
 
 .articleUrl {
   font-size: 13px;
-  color: var(--link-blue, #4A7B94);
+  color: var(--link-blue);
   font-family: 'DM Sans', system-ui;
   text-decoration: none;
   word-break: break-all;
@@ -637,7 +625,7 @@
 
 .fileLink {
   font-size: 14px;
-  color: var(--link-blue, #4A7B94);
+  color: var(--link-blue);
   font-family: 'DM Sans', system-ui;
   text-decoration: none;
 }
@@ -646,17 +634,19 @@
   text-decoration: underline;
 }
 
-/* Mini-spark embedded results */
+/* ========================================
+   Mini-Spark Results
+   ======================================== */
 .miniSparkResult {
   margin-top: 12px;
-  padding: 12px;
+  padding: 10px 12px;
   background: var(--spark-bg);
-  border: 1px solid var(--spark-border);
-  border-radius: 8px;
+  border-left: 3px solid var(--spark-primary);
+  border-radius: 0 8px 8px 0;
 }
 
 .miniSparkLabel {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -672,13 +662,15 @@
   white-space: pre-wrap;
 }
 
-/* Action bar */
+/* ========================================
+   Action Bar
+   ======================================== */
 .actionBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-light);
 }
 
@@ -729,12 +721,14 @@
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Notes */
+/* ========================================
+   Notes
+   ======================================== */
 .noteDisplay {
   margin-top: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: 6px;
   font-family: 'Source Serif 4', Georgia, serif;
   font-size: 14px;
@@ -776,7 +770,9 @@
   margin-top: 8px;
 }
 
-/* Content editing (for user thoughts) */
+/* ========================================
+   Content Editing
+   ======================================== */
 .contentEditor {
   margin-top: 8px;
 }
@@ -807,7 +803,43 @@
   margin-top: 8px;
 }
 
-/* Archive */
+/* Shared button styles */
+.cancelBtn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: 'DM Sans', system-ui;
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.cancelBtn:hover {
+  border-color: var(--border-medium);
+}
+
+.saveBtn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: var(--text-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.saveBtn:hover {
+  opacity: 0.9;
+}
+
+/* ========================================
+   Archive Section
+   ======================================== */
 .archiveSection {
   margin-top: 32px;
   padding-top: 24px;
@@ -827,6 +859,7 @@
   color: var(--text-tertiary);
   cursor: pointer;
   text-align: left;
+  transition: color 0.2s;
 }
 
 .archiveToggle:hover {
@@ -855,7 +888,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 10px;
-  padding: 16px;
+  padding: 14px 16px;
   opacity: 0.7;
 }
 
@@ -863,53 +896,22 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-light);
 }
 
 .dangerAction {
-  color: var(--danger, #c0392b);
+  color: var(--danger);
 }
 
 .dangerAction:hover {
   background: #fef2f2;
 }
 
-/* Pasted image preview */
-.pastedPreview {
-  position: relative;
-  margin-top: 10px;
-  display: inline-block;
-}
-
-.pastedImage {
-  max-width: 200px;
-  max-height: 150px;
-  border-radius: 6px;
-  border: 1px solid var(--border-light);
-  display: block;
-}
-
-.pastedRemove {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--text-primary);
-  color: white;
-  border: none;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  line-height: 1;
-}
-
-/* Archived idea nav */
+/* ========================================
+   Archived Idea Nav State
+   ======================================== */
 .archivedNavActions {
   display: flex;
   align-items: center;
@@ -937,8 +939,105 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .unarchiveBtn:hover {
   background: var(--spark-hover);
+}
+
+/* ========================================
+   Confirm Dialog
+   ======================================== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  z-index: 1000;
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 340px;
+  width: calc(100vw - 40px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+}
+
+.dialogMessage {
+  font-family: 'DM Sans', system-ui;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.dialogSubtext {
+  font-family: 'DM Sans', system-ui;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialogCancel {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: 'DM Sans', system-ui;
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.dialogCancel:hover {
+  border-color: var(--border-medium);
+}
+
+.dialogConfirm {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: var(--text-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dialogConfirm:hover {
+  opacity: 0.9;
+}
+
+.dialogDanger {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dialogDanger:hover {
+  opacity: 0.9;
 }

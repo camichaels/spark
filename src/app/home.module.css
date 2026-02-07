@@ -1,20 +1,16 @@
-.center {
-  max-width: 400px;
-  margin: 100px auto;
-  text-align: center;
-  font-family: 'DM Sans', system-ui;
-}
+/* ============================================
+   HOME PAGE - Unique Styles Only
+   Shared patterns imported from shared.module.css
+   ============================================ */
 
-.muted {
-  color: var(--text-tertiary);
-  margin-top: 8px;
-}
-
-/* Auth */
+/* ========================================
+   Auth Screen
+   ======================================== */
 .auth {
   max-width: 360px;
   margin: 120px auto;
   padding: 0 20px;
+  text-align: center;
 }
 
 .logo {
@@ -58,6 +54,7 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .primaryBtn:hover {
@@ -70,7 +67,9 @@
   margin-top: 8px;
 }
 
-/* Container */
+/* ========================================
+   Home Container (override shared)
+   ======================================== */
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -79,7 +78,9 @@
   color: var(--text-primary);
 }
 
-/* Header — App Title + ••• */
+/* ========================================
+   App Header (Spark title + ••• menu)
+   ======================================== */
 .header {
   display: flex;
   align-items: center;
@@ -93,7 +94,7 @@
   font-weight: 500;
 }
 
-/* ••• Menu (header) */
+/* Header ••• Menu */
 .menuWrapper {
   position: relative;
 }
@@ -153,8 +154,161 @@
 }
 
 /* ========================================
-   Quick Capture — matches Idea page layout
-   textarea on top, [Post] [•••] row below
+   Ideas Section
+   ======================================== */
+.ideasHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sectionTitle {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.ideasActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.count {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.newBtn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'DM Sans', system-ui;
+  background: var(--spark-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.newBtn:hover {
+  background: var(--spark-hover);
+}
+
+.newBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* New Idea Form */
+.newIdea {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.newIdeaInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: 'Source Serif 4', Georgia, serif;
+  color: var(--text-primary);
+  background: transparent;
+  margin-bottom: 12px;
+}
+
+.newIdeaInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.newIdeaActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancelBtn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: 'DM Sans', system-ui;
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.cancelBtn:hover {
+  border-color: var(--border-medium);
+}
+
+.createBtn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: var(--spark-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.createBtn:hover {
+  background: var(--spark-hover);
+}
+
+/* Idea List */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.ideaList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ideaCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s;
+}
+
+.ideaCard:hover {
+  border-color: var(--border-medium);
+}
+
+.ideaTitle {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ideaDate {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+/* ========================================
+   Quick Capture
    ======================================== */
 .capture {
   background: var(--bg-card);
@@ -163,7 +317,7 @@
   padding: 12px 14px;
   margin-top: 20px;
   margin-bottom: 4px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .capture:focus-within {
@@ -190,7 +344,6 @@
   color: var(--text-tertiary);
 }
 
-/* Row: [Post] [•••] — right-aligned, same line */
 .captureActions {
   display: flex;
   align-items: center;
@@ -235,7 +388,7 @@
   color: var(--text-secondary);
 }
 
-/* Staged file preview in capture area */
+/* Staged file preview */
 .stagedPreview {
   position: relative;
   margin-bottom: 8px;
@@ -297,151 +450,8 @@
 }
 
 /* ========================================
-   Ideas Section
+   Secondary Nav (Inbox / Drawer pills)
    ======================================== */
-.ideasHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.sectionTitle {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.ideasActions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.count {
-  font-size: 13px;
-  color: var(--text-tertiary);
-}
-
-.newBtn {
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'DM Sans', system-ui;
-  background: var(--spark-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.newBtn:hover {
-  background: var(--spark-hover);
-}
-
-.newBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.newIdea {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 12px;
-}
-
-.newIdeaInput {
-  width: 100%;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  font-family: 'Source Serif 4', Georgia, serif;
-  color: var(--text-primary);
-  background: transparent;
-  margin-bottom: 12px;
-}
-
-.newIdeaInput::placeholder {
-  color: var(--text-tertiary);
-}
-
-.newIdeaActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.cancelBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  background: none;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.createBtn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: var(--spark-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.createBtn:hover {
-  background: var(--spark-hover);
-}
-
-.empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text-secondary);
-}
-
-.ideaList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.ideaCard {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 14px 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: border-color 0.2s;
-}
-
-.ideaCard:hover {
-  border-color: var(--border-medium);
-}
-
-.ideaTitle {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.ideaDate {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  margin-left: 16px;
-}
-
-/* Secondary Nav — Inbox / Drawer */
 .secondaryNav {
   display: flex;
   align-items: center;
@@ -500,7 +510,7 @@
 }
 
 /* ========================================
-   Archive Section
+   Archived Ideas Section
    ======================================== */
 .archiveSection {
   margin-bottom: 24px;
@@ -558,16 +568,12 @@
   border-radius: 8px;
   padding: 10px 12px;
   gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.archivedInfo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: 1;
-  cursor: pointer;
-  min-width: 0;
-  gap: 12px;
+.archivedCard:hover {
+  background: var(--bg-card);
 }
 
 .archivedTitle {
@@ -585,47 +591,8 @@
   flex-shrink: 0;
 }
 
-.archivedActions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.archiveActionBtn {
-  background: none;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  padding: 4px 6px;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.archiveActionBtn:hover {
-  color: var(--spark-primary);
-  background: var(--spark-bg, rgba(0, 0, 0, 0.04));
-}
-
-.archiveActionBtnDanger {
-  background: none;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  padding: 4px 6px;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.archiveActionBtnDanger:hover {
-  color: var(--danger);
-  background: #fef2f2;
-}
-
 /* ========================================
-   Add Options Modal (••• from quick-add)
-   Centered, text-only options, no icons
+   Add Options Modal (••• from quick capture)
    ======================================== */
 .addOptionsModal {
   position: fixed;
@@ -639,6 +606,17 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   padding: 8px 0;
   animation: modalIn 0.15s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .addOption {
@@ -683,7 +661,7 @@
 }
 
 /* ========================================
-   Destination Picker Modal (post-tap)
+   Destination Picker Modal
    ======================================== */
 .destModal {
   position: fixed;
@@ -698,17 +676,6 @@
   z-index: 1001;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   animation: modalIn 0.15s ease-out;
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
 }
 
 .destModalHeader {
@@ -799,6 +766,8 @@
   cursor: pointer;
   color: var(--text-tertiary);
   padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.2s;
 }
 
 .closeBtn:hover {
@@ -964,7 +933,9 @@
   text-decoration: underline;
 }
 
-/* Sign Out Confirm */
+/* ========================================
+   Dialog (Sign Out Confirm, etc.)
+   ======================================== */
 .dialog {
   position: fixed;
   top: 50%;
@@ -1008,6 +979,7 @@
   border-radius: 8px;
   color: var(--text-secondary);
   cursor: pointer;
+  transition: border-color 0.2s;
 }
 
 .dialogCancel:hover {
@@ -1025,13 +997,16 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
 .dialogConfirm:hover {
   opacity: 0.9;
 }
 
-/* Toast */
+/* ========================================
+   Toast
+   ======================================== */
 .toast {
   position: fixed;
   bottom: 32px;
@@ -1058,4 +1033,19 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+/* ========================================
+   Utilities
+   ======================================== */
+.center {
+  max-width: 400px;
+  margin: 100px auto;
+  text-align: center;
+  font-family: 'DM Sans', system-ui;
+}
+
+.muted {
+  color: var(--text-tertiary);
+  margin-top: 8px;
 }
