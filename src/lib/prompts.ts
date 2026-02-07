@@ -214,6 +214,13 @@ export function buildElementsSummary(elements: Array<{
       content += ` [user note: "${truncatedNote}"]`
     }
     
+    // Add AI summary if present (crucial for images/PDFs)
+    const summary = el.metadata?.summary as string | undefined
+    if (summary) {
+      const truncatedSummary = summary.length > 200 ? summary.slice(0, 200) + '...' : summary
+      content += ` [⚡ summary: "${truncatedSummary}"]`
+    }
+    
     lines.push(`${prefix} ${content}`)
   })
   
