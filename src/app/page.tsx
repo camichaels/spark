@@ -49,7 +49,7 @@ export default function Home() {
 
   // Quick Capture
   const [captureText, setCaptureText] = useState('')
-  const captureRef = useRef<HTMLInputElement>(null)
+  const captureRef = useRef<HTMLTextAreaElement>(null)
   const [showAddOptions, setShowAddOptions] = useState(false)
   const captureFileRef = useRef<HTMLInputElement>(null)
   const captureImageRef = useRef<HTMLInputElement>(null)
@@ -379,29 +379,52 @@ export default function Home() {
     // Text paste: let it go through normally, URL detection happens on Post
   }
 
-  async function createIdea() {
-    if (!newTitle.trim() || !user) return
-    const { error } = await supabase.from('ideas').insert({
-      user_id: user.id,
-      title: newTitle.trim(),
-      status: 'active',
-      sort_order: ideas.length,
-    })
-    if (!error) {
-      setNewTitle('')
-      setShowNew(false)
-      loadIdeas()
+  // ••• menu: Paste link from clipboard
+  async function handlePasteLinkOption() {
+    setShowAddOptions(false)
+    try {
+      const text = await navigator.clipboard.readText()
+      if (text) {
+        setCaptureText(text)
+        if (captureRef.current) {
+          captureRef.current.focus()
+          captureRef.current.style.height = 'auto'
+          captureRef.current.style.height = captureRef.current.scrollHeight + 'px'
+        }
+      }
+    } catch {
+      // Clipboard permission denied — focus the textarea so user can Ctrl+V
+      captureRef.current?.focus()
     }
   }
 
   async function deleteAccount() {
-    if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return
-    await supabase.from('elements').delete().eq('user_id', user!.id)
-    await supabase.from('ideas').delete().eq('user_id', user!.id)
+    if (!confirm('This will permanently delete your account and all data. This cannot be undone. Are you sure?')) return
     await supabase.auth.signOut()
+    alert('To complete account deletion, please contact hello@sparkit.app. You have been signed out.')
   }
 
-  async function handleLogin() {
+  async function createIdea() {
+    if (!newTitle.trim() || !user) return
+    if (ideas.length >= MAX_ACTIVE_IDEAS) {
+      alert(`You can have up to ${MAX_ACTIVE_IDEAS} active Ideas. Archive one to make room.`)
+      return
+    }
+    const { data, error } = await supabase
+      .from('ideas')
+      .insert({ title: newTitle.trim(), user_id: user.id })
+      .select()
+      .single()
+    if (data) {
+      setNewTitle('')
+      setShowNew(false)
+      router.push(`/idea/${data.id}`)
+    }
+    if (error) console.error(error)
+  }
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
     setAuthError('')
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -411,242 +434,251 @@ export default function Home() {
     else setSent(true)
   }
 
+  // Loading
   if (loading) {
-    return <div className={styles.center}><p className={styles.muted}>Loading...</p></div>
+    return <div className={styles.center}><p className={styles.muted}></p></div>
   }
 
+  // Sign in
   if (!user) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.auth}>
-          <h1 className={styles.logo}>⚡ Spark</h1>
-          <p className={styles.muted}>Develop your thinking</p>
-
-          {sent ? (
-            <p style={{ marginTop: 24 }}>Check your email for a magic link.</p>
-          ) : (
-            <div className={styles.form}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                className={styles.input}
-              />
-              <button onClick={handleLogin} className={styles.primaryBtn}>Continue</button>
-              {authError && <p className={styles.error}>{authError}</p>}
-            </div>
-          )}
+    if (sent) {
+      return (
+        <div className={styles.center}>
+          <h2>Check your email</h2>
+          <p className={styles.muted}>We sent a magic link to <strong>{email}</strong></p>
         </div>
+      )
+    }
+    return (
+      <div className={styles.auth}>
+        <h1 className={styles.logo}>⚡ Spark</h1>
+        <p className={styles.muted}>Sign in with your email</p>
+        <form onSubmit={handleLogin} className={styles.form}>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={styles.input}
+          />
+          <button type="submit" className={styles.primaryBtn}>
+            Send magic link
+          </button>
+        </form>
+        {authError && <p className={styles.error}>{authError}</p>}
       </div>
     )
   }
 
+  // Still loading ideas
+  if (!ideasLoaded) {
+    return <div className={styles.center}><p className={styles.muted}></p></div>
+  }
+
+  // Home screen
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        {/* App Header */}
-        <header className={styles.header}>
-          <h1 className={styles.appTitle}>⚡ Spark</h1>
-          <div className={styles.menuWrapper} ref={menuRef}>
-            <button onClick={() => setShowMenu(!showMenu)} className={styles.menuBtn}>•••</button>
-            {showMenu && (
-              <div className={styles.dropMenu}>
-                <button className={styles.dropMenuItem} onClick={() => { setShowMenu(false); setShowAbout(true) }}>About</button>
-                <button className={styles.dropMenuItem} onClick={() => { setShowMenu(false); setShowSettingsModal(true) }}>Settings</button>
-                <div className={styles.dropMenuDivider} />
-                <button className={styles.dropMenuItem} onClick={() => { setShowMenu(false); setShowSignOutConfirm(true) }}>Sign out</button>
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* Ideas Box — contains ideas list + archived */}
-        <div className={styles.ideasBox}>
-          <div className={styles.ideasHeader}>
-            <h2 className={styles.sectionTitle}>Ideas</h2>
-            <div className={styles.ideasActions}>
-              <span className={styles.count}>{ideas.length}/{MAX_ACTIVE_IDEAS}</span>
-              <button
-                onClick={() => setShowNew(true)}
-                className={styles.newBtn}
-                disabled={ideas.length >= MAX_ACTIVE_IDEAS}
-              >+ New</button>
-            </div>
-          </div>
-
-          {showNew && (
-            <div className={styles.newIdea}>
-              <input
-                type="text"
-                placeholder="What are you thinking about?"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && createIdea()}
-                autoFocus
-                className={styles.newIdeaInput}
-              />
-              <div className={styles.newIdeaActions}>
-                <button onClick={() => { setShowNew(false); setNewTitle('') }} className={styles.cancelBtn}>Cancel</button>
-                <button onClick={createIdea} className={styles.createBtn}>Create</button>
-              </div>
+    <div className={styles.container}>
+      {/* Header: ⚡ Spark ... ••• */}
+      <header className={styles.header}>
+        <h1 className={styles.appTitle}>⚡ Spark</h1>
+        <div className={styles.menuWrapper} ref={menuRef}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu) }}
+            className={styles.menuBtn}
+          >•••</button>
+          {showMenu && (
+            <div className={styles.dropMenu}>
+              <button className={styles.dropMenuItem} onClick={() => { setShowMenu(false); setShowAbout(true) }}>About</button>
+              <button className={styles.dropMenuItem} onClick={() => { setShowMenu(false); setShowSettingsModal(true) }}>Settings</button>
+              <div className={styles.dropMenuDivider} />
+              <button className={styles.dropMenuItem} onClick={() => { setShowMenu(false); setShowSignOutConfirm(true) }}>Sign out</button>
             </div>
           )}
+        </div>
+      </header>
 
-          {ideas.length === 0 && !showNew ? (
-            <div className={styles.emptyIdeas}>
-              <p>No ideas yet.</p>
-              <p className={styles.muted}>Tap + New to start your first Idea.</p>
+      {/* Ideas — title + count + new on same row */}
+      <div className={styles.ideasHeader}>
+        <h2 className={styles.sectionTitle}>Ideas</h2>
+        <div className={styles.ideasActions}>
+          <span className={styles.count}>{ideas.length}/{MAX_ACTIVE_IDEAS}</span>
+          <button
+            onClick={() => setShowNew(true)}
+            className={styles.newBtn}
+            disabled={ideas.length >= MAX_ACTIVE_IDEAS}
+          >+ New</button>
+        </div>
+      </div>
+
+      {showNew && (
+        <div className={styles.newIdea}>
+          <input
+            type="text"
+            placeholder="What are you thinking about?"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && createIdea()}
+            autoFocus
+            className={styles.newIdeaInput}
+          />
+          <div className={styles.newIdeaActions}>
+            <button onClick={() => { setShowNew(false); setNewTitle('') }} className={styles.cancelBtn}>Cancel</button>
+            <button onClick={createIdea} className={styles.createBtn}>Create</button>
+          </div>
+        </div>
+      )}
+
+      {ideas.length === 0 && !showNew ? (
+        <div className={styles.empty}>
+          <p>No ideas yet.</p>
+          <p className={styles.muted}>Start by creating your first Idea — a question or topic you want to develop.</p>
+        </div>
+      ) : (
+        <div className={styles.ideaList}>
+          {ideas.map((idea) => (
+            <div
+              key={idea.id}
+              className={styles.ideaCard}
+              onClick={() => router.push(`/idea/${idea.id}`)}
+            >
+              <h3 className={styles.ideaTitle}>{idea.title}</h3>
+              <span className={styles.ideaDate}>
+                {new Date(idea.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </span>
             </div>
-          ) : (
-            <div className={styles.ideaList}>
-              {ideas.map((idea) => (
+          ))}
+        </div>
+      )}
+
+      {/* Quick Capture — below Ideas, above nav buttons */}
+      <div className={styles.capture}>
+        {/* Staged file preview */}
+        {stagedFile && (
+          <div className={styles.stagedPreview}>
+            {stagedFile.type === 'image' && stagedFile.previewUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={stagedFile.previewUrl} alt="Preview" className={styles.stagedImage} />
+            ) : (
+              <div className={styles.stagedFileCard}>
+                <span className={styles.stagedFileExt}>
+                  {stagedFile.file.name.split('.').pop()?.toUpperCase() || 'FILE'}
+                </span>
+                <span className={styles.stagedFileName}>{stagedFile.file.name}</span>
+              </div>
+            )}
+            <button onClick={clearStagedFile} className={styles.stagedRemove}>✕</button>
+          </div>
+        )}
+        <textarea
+          ref={captureRef}
+          value={captureText}
+          onChange={(e) => {
+            setCaptureText(e.target.value)
+            e.target.style.height = 'auto'
+            e.target.style.height = e.target.scrollHeight + 'px'
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              handlePostTap()
+            }
+          }}
+          onPaste={handleCapturePaste}
+          placeholder={stagedFile ? "Add a caption (optional)..." : "Capture a thought, paste a link..."}
+          className={styles.captureInput}
+          rows={1}
+        />
+        <div className={styles.captureActions}>
+          {(captureText.trim() || stagedFile) && (
+            <button onClick={handlePostTap} className={styles.capturePost}>Post</button>
+          )}
+          <button
+            onClick={() => setShowAddOptions(true)}
+            className={styles.captureMore}
+            title="Attach file or image"
+          >•••</button>
+        </div>
+        {/* Hidden file inputs */}
+        <input
+          ref={captureFileRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={handleCaptureFileSelect}
+        />
+        <input
+          ref={captureImageRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleCaptureImageSelect}
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style={{ display: 'none' }}
+          onChange={handleCaptureImageSelect}
+        />
+      </div>
+
+      {/* ••• Add Options Modal — centered overlay, text-only */}
+      {showAddOptions && (
+        <>
+          <div className={styles.overlay} onClick={() => setShowAddOptions(false)} />
+          <div className={styles.addOptionsModal}>
+            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); captureImageRef.current?.click() }}>Choose image</button>
+            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); captureFileRef.current?.click() }}>Add file</button>
+            <button className={styles.addOption} onClick={handlePasteLinkOption}>Paste link</button>
+            {isMobile && (
+              <button className={styles.addOption} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take photo</button>
+            )}
+            <button className={styles.addOptionCancel} onClick={() => setShowAddOptions(false)}>Cancel</button>
+          </div>
+        </>
+      )}
+
+      {/* Inbox · Drawer — outlined pill buttons */}
+      <div className={styles.secondaryNav}>
+        <button className={styles.pillBtn} onClick={() => router.push('/inbox')}>
+          Inbox{inboxCount > 0 && <span className={styles.pillCountMuted}>{inboxCount}</span>}
+        </button>
+        <button className={styles.pillBtn} onClick={() => router.push('/drawer')}>
+          Drawer{drawerCount > 0 && <span className={styles.pillCountMuted}>{drawerCount}</span>}
+        </button>
+      </div>
+
+      {/* Archived Ideas — simplified: just clickable cards, no inline actions */}
+      {archivedIdeas.length > 0 && (
+        <div className={styles.archiveSection}>
+          <button
+            className={styles.archiveToggle}
+            onClick={() => setShowArchived(!showArchived)}
+          >
+            <span className={styles.archiveLabel}>
+              <span className={`${styles.chevron} ${showArchived ? styles.chevronOpen : ''}`}>▶</span>
+              Archived ({archivedIdeas.length})
+            </span>
+          </button>
+          {showArchived && (
+            <div className={styles.archivedList}>
+              {archivedIdeas.map((idea) => (
                 <div
                   key={idea.id}
-                  className={styles.ideaCard}
+                  className={styles.archivedCard}
                   onClick={() => router.push(`/idea/${idea.id}`)}
                 >
-                  <h3 className={styles.ideaTitle}>{idea.title}</h3>
-                  <span className={styles.ideaDate}>
+                  <span className={styles.archivedTitle}>{idea.title}</span>
+                  <span className={styles.archivedDate}>
                     {new Date(idea.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               ))}
             </div>
           )}
-
-          {/* Archived — inside the Ideas box */}
-          {archivedIdeas.length > 0 && (
-            <div className={styles.archiveSection}>
-              <button
-                className={styles.archiveToggle}
-                onClick={() => setShowArchived(!showArchived)}
-              >
-                <span className={styles.archiveLabel}>
-                  <span className={`${styles.chevron} ${showArchived ? styles.chevronOpen : ''}`}>▶</span>
-                  Archived ({archivedIdeas.length})
-                </span>
-              </button>
-              {showArchived && (
-                <div className={styles.archivedList}>
-                  {archivedIdeas.map((idea) => (
-                    <div
-                      key={idea.id}
-                      className={styles.archivedCard}
-                      onClick={() => router.push(`/idea/${idea.id}`)}
-                    >
-                      <span className={styles.archivedTitle}>{idea.title}</span>
-                      <span className={styles.archivedDate}>
-                        {new Date(idea.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
-
-        {/* Quick Capture — separate from Ideas box */}
-        <div className={styles.capture}>
-          {/* Staged file preview */}
-          {stagedFile && (
-            <div className={styles.stagedPreview}>
-              {stagedFile.type === 'image' && stagedFile.previewUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={stagedFile.previewUrl} alt="Preview" className={styles.stagedImage} />
-              ) : (
-                <div className={styles.stagedFileCard}>
-                  <span className={styles.stagedFileExt}>
-                    {stagedFile.file.name.split('.').pop()?.toUpperCase() || 'FILE'}
-                  </span>
-                  <span className={styles.stagedFileName}>{stagedFile.file.name}</span>
-                </div>
-              )}
-              <button onClick={clearStagedFile} className={styles.stagedRemove}>✕</button>
-            </div>
-          )}
-          <input
-            ref={captureRef}
-            value={captureText}
-            onChange={(e) => setCaptureText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handlePostTap()
-              }
-            }}
-            onPaste={handleCapturePaste}
-            placeholder={stagedFile ? "Add a caption (optional)..." : "Add a thought, link..."}
-            className={styles.captureInput}
-          />
-          <div className={styles.captureActions}>
-            {(captureText.trim() || stagedFile) && (
-              <button onClick={handlePostTap} className={styles.capturePost}>Post</button>
-            )}
-            <div className={styles.menuWrapper}>
-              <button
-                onClick={() => setShowAddOptions(!showAddOptions)}
-                className={styles.captureMore}
-                title="Attach file or image"
-              >•••</button>
-              {showAddOptions && (
-                <div className={styles.dropMenu}>
-                  {isMobile && (
-                    <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
-                  )}
-                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureImageRef.current?.click() }}>Add Image</button>
-                  <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureFileRef.current?.click() }}>Add File</button>
-                </div>
-              )}
-            </div>
-          </div>
-          {/* Hidden file inputs */}
-          <input
-            ref={captureFileRef}
-            type="file"
-            accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.zip"
-            style={{ display: 'none' }}
-            onChange={handleCaptureFileSelect}
-          />
-          <input
-            ref={captureImageRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleCaptureImageSelect}
-          />
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            style={{ display: 'none' }}
-            onChange={handleCaptureImageSelect}
-          />
-        </div>
-
-        {/* Inbox · Drawer — outlined pill buttons */}
-        <div className={styles.secondaryNav}>
-          <button className={styles.pillBtn} onClick={() => router.push('/inbox')}>
-            Inbox{inboxCount > 0 && <span className={styles.pillCountMuted}>{inboxCount}</span>}
-          </button>
-          <button className={styles.pillBtn} onClick={() => router.push('/drawer')}>
-            Drawer{drawerCount > 0 && <span className={styles.pillCountMuted}>{drawerCount}</span>}
-          </button>
-        </div>
-
-        {/* Spacer to push footer down */}
-        <div className={styles.spacer} />
-
-        {/* Footer — at bottom */}
-        <footer className={styles.footer}>
-          <p>Made with ❤️ for those who spark ideas</p>
-          <p><a href="mailto:hello@sparkideas.app" className={styles.footerContact}>hello@sparkideas.app</a></p>
-          <p className={styles.footerCopy}>© 2026 Spark Ideas</p>
-        </footer>
-      </div>
+      )}
 
       {/* ===== DESTINATION PICKER MODAL ===== */}
       {showDestPicker && (
@@ -694,14 +726,29 @@ export default function Home() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>About Spark</h2>
+              <button onClick={() => setShowAbout(false)} className={styles.closeBtn}>✕</button>
             </div>
             <div className={styles.aboutBody}>
               <p className={styles.aboutDesc}>
-                Spark is a tool for developing your thinking. Collect thoughts, links, images, and files around
-                an idea — then let AI challenge, connect, and expand what you've gathered.
+                Spark is a tool for developing your thinking. It's not a notebook. Not a chatbot. 
+                It's a partner that helps challenge, connect, and expand your ideas.
+              </p>
+              <p className={styles.aboutSubhead}>How to use Spark</p>
+              <p className={styles.aboutDesc}>
+                Start with a question or idea you want to develop. Write your current thinking at 
+                the top — this is your evolving thesis, in your words.
               </p>
               <p className={styles.aboutDesc}>
-                Not a notebook. Not a chatbot. A thinking partner.
+                Add elements below: thoughts, links, images, PDFs. These are inputs that inform 
+                your thinking, not an exhaustive collection.
+              </p>
+              <p className={styles.aboutDesc}>
+                When you're ready, spark it. AI will challenge your assumptions, surface patterns, 
+                or suggest new directions — but it won't give you answers. Every response ends 
+                with a question back to you.
+              </p>
+              <p className={styles.aboutDesc}>
+                The goal isn't AI-generated insight. It's your insight, sharpened by friction.
               </p>
             </div>
             <button onClick={() => setShowAbout(false)} className={styles.gotItBtn}>Got it</button>

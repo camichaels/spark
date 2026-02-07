@@ -1,29 +1,7 @@
 /* ============================================
-   HOME PAGE - Redesigned with Ideas Box
+   HOME PAGE - Unique Styles Only
+   Shared patterns imported from shared.module.css
    ============================================ */
-
-/* ========================================
-   Page & Container
-   ======================================== */
-.page {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  /* Subtle paper texture */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-blend-mode: soft-light;
-  background-size: 150px 150px;
-}
-
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 40px 20px 40px;
-  font-family: 'DM Sans', system-ui;
-  color: var(--text-primary);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
 
 /* ========================================
    Auth Screen
@@ -90,13 +68,24 @@
 }
 
 /* ========================================
+   Home Container (override shared)
+   ======================================== */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px 100px;
+  font-family: 'DM Sans', system-ui;
+  color: var(--text-primary);
+}
+
+/* ========================================
    App Header (Spark title + ••• menu)
    ======================================== */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .appTitle {
@@ -165,21 +154,13 @@
 }
 
 /* ========================================
-   Ideas Box — container with depth
+   Ideas Section
    ======================================== */
-.ideasBox {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
 .ideasHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .sectionTitle {
@@ -223,7 +204,8 @@
 
 /* New Idea Form */
 .newIdea {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: 10px;
   padding: 16px;
   margin-bottom: 12px;
@@ -284,9 +266,9 @@
 }
 
 /* Idea List */
-.emptyIdeas {
+.empty {
   text-align: center;
-  padding: 30px 20px;
+  padding: 40px 20px;
   color: var(--text-secondary);
 }
 
@@ -297,7 +279,7 @@
 }
 
 .ideaCard {
-  background: var(--bg-primary);
+  background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 10px;
   padding: 14px 16px;
@@ -305,12 +287,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: border-color 0.2s, transform 0.15s;
+  transition: border-color 0.2s;
 }
 
 .ideaCard:hover {
   border-color: var(--border-medium);
-  transform: translateY(-1px);
 }
 
 .ideaTitle {
@@ -326,78 +307,8 @@
   margin-left: 16px;
 }
 
-/* Archived Section — inside Ideas box */
-.archiveSection {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-light);
-}
-
-.archiveToggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 100%;
-  text-align: left;
-}
-
-.archiveLabel {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: color 0.2s;
-}
-
-.archiveToggle:hover .archiveLabel {
-  color: var(--text-secondary);
-}
-
-.chevron {
-  font-size: 10px;
-  transition: transform 0.2s;
-}
-
-.chevronOpen {
-  transform: rotate(90deg);
-}
-
-.archivedList {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.archivedCard {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.archivedCard:hover {
-  background: var(--border-light);
-}
-
-.archivedTitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.archivedDate {
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
-
 /* ========================================
-   Quick Capture — separate from Ideas box
+   Quick Capture
    ======================================== */
 .capture {
   background: var(--bg-card);
@@ -405,6 +316,7 @@
   border-radius: 10px;
   padding: 12px 14px;
   margin-top: 20px;
+  margin-bottom: 4px;
   transition: border-color 0.2s, box-shadow 0.2s;
   display: flex;
   align-items: center;
@@ -523,20 +435,15 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
-  font-size: 14px;
-  line-height: 1;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
-}
-
-.stagedRemove:hover {
-  background: rgba(0, 0, 0, 0.8);
+  line-height: 1;
 }
 
 /* ========================================
@@ -544,75 +451,210 @@
    ======================================== */
 .secondaryNav {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   margin-top: 20px;
+  margin-bottom: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
 }
 
 .pillBtn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-family: 'DM Sans', system-ui;
-  font-weight: 500;
-  background: transparent;
-  border: 1px solid var(--border-light);
-  border-radius: 20px;
-  color: var(--text-secondary);
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: border-color 0.2s, background 0.2s;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .pillBtn:hover {
+  color: var(--text-primary);
   border-color: var(--border-medium);
-  background: var(--bg-card);
+  background: var(--bg-secondary);
+}
+
+.pillCount {
+  background: var(--spark-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 16px;
 }
 
 .pillCountMuted {
-  font-size: 12px;
-  color: var(--text-tertiary);
   background: var(--bg-secondary);
-  padding: 2px 6px;
-  border-radius: 10px;
-}
-
-/* ========================================
-   Spacer (pushes footer to bottom)
-   ======================================== */
-.spacer {
-  flex: 1;
-  min-height: 40px;
-}
-
-/* ========================================
-   Footer — at page bottom
-   ======================================== */
-.footer {
-  margin-top: auto;
-  padding-top: 40px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 1px 7px;
+  border-radius: 8px;
+  min-width: 18px;
   text-align: center;
+  line-height: 16px;
+}
+
+/* ========================================
+   Archived Ideas Section
+   ======================================== */
+.archiveSection {
+  margin-bottom: 24px;
+}
+
+.archiveToggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 8px 0;
   font-size: 13px;
+  font-family: 'DM Sans', system-ui;
   color: var(--text-tertiary);
-}
-
-.footerContact {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  text-decoration: none;
+  cursor: pointer;
   transition: color 0.2s;
+  text-align: left;
 }
 
-.footerContact:hover {
+.archiveToggle:hover {
   color: var(--text-secondary);
 }
 
-.footerCopy {
-  font-size: 11px;
+.archiveLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chevron {
+  font-size: 10px;
+  display: inline-block;
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+  line-height: 1;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.archivedList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.archivedCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.archivedCard:hover {
+  background: var(--bg-card);
+}
+
+.archivedTitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.archivedDate {
+  font-size: 12px;
   color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ========================================
+   Add Options Modal (••• from quick capture)
+   ======================================== */
+.addOptionsModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-card);
+  border-radius: 10px;
+  min-width: 240px;
+  z-index: 1001;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  animation: modalIn 0.15s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.addOption {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.addOption:hover {
+  background: var(--bg-secondary);
+}
+
+.addOptionCancel {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border-light);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
   margin-top: 4px;
-  opacity: 0.7;
+}
+
+.addOptionCancel:hover {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 /* ========================================
@@ -631,17 +673,6 @@
   z-index: 1001;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   animation: modalIn 0.15s ease-out;
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
 }
 
 .destModalHeader {
@@ -743,6 +774,14 @@
 /* About Modal */
 .aboutBody {
   margin-bottom: 0;
+}
+
+.aboutSubhead {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 16px;
+  margin-bottom: 8px;
 }
 
 .aboutDesc {
@@ -1003,6 +1042,34 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.footerContact {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footerContact:hover {
+  color: var(--text-secondary);
+}
+
+.footerCopy {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
 }
 
 /* ========================================
