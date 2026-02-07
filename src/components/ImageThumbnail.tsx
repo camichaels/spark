@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './ImageThumbnail.module.css'
 
 type ImageThumbnailProps = {
@@ -11,6 +11,16 @@ type ImageThumbnailProps = {
 
 export default function ImageThumbnail({ src, alt = '', caption }: ImageThumbnailProps) {
   const [isOpen, setIsOpen] = useState(false)
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [isOpen])
 
   return (
     <>

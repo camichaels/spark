@@ -585,7 +585,7 @@ export default function Home() {
             }
           }}
           onPaste={handleCapturePaste}
-          placeholder={stagedFile ? "Add a caption (optional)..." : "Capture a thought, paste a link..."}
+          placeholder={stagedFile ? "Add a caption (optional)..." : "Add a thought, link..."}
           className={styles.captureInput}
           rows={1}
         />
@@ -623,18 +623,16 @@ export default function Home() {
         />
       </div>
 
-      {/* ••• Add Options Modal — centered overlay, text-only */}
+      {/* ••• Add Options — dropdown menu */}
       {showAddOptions && (
         <>
           <div className={styles.overlay} onClick={() => setShowAddOptions(false)} />
-          <div className={styles.addOptionsModal}>
-            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); captureImageRef.current?.click() }}>Choose image</button>
-            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); captureFileRef.current?.click() }}>Add file</button>
-            <button className={styles.addOption} onClick={handlePasteLinkOption}>Paste link</button>
+          <div className={styles.dropMenu}>
             {isMobile && (
-              <button className={styles.addOption} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take photo</button>
+              <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
             )}
-            <button className={styles.addOptionCancel} onClick={() => setShowAddOptions(false)}>Cancel</button>
+            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureImageRef.current?.click() }}>Add Image</button>
+            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); captureFileRef.current?.click() }}>Add File</button>
           </div>
         </>
       )}
@@ -726,7 +724,6 @@ export default function Home() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>About Spark</h2>
-              <button onClick={() => setShowAbout(false)} className={styles.closeBtn}>✕</button>
             </div>
             <div className={styles.aboutBody}>
               <p className={styles.aboutDesc}>
@@ -737,11 +734,7 @@ export default function Home() {
                 Not a notebook. Not a chatbot. A thinking partner.
               </p>
             </div>
-            <div className={styles.aboutFooter}>
-              <p>Made with ❤️ for those who spark ideas</p>
-              <p className={styles.aboutContact}>hello@sparkit.app</p>
-              <p className={styles.aboutCopy}>© 2026 Spark</p>
-            </div>
+            <button onClick={() => setShowAbout(false)} className={styles.gotItBtn}>Got it</button>
           </div>
         </>
       )}
@@ -811,6 +804,13 @@ export default function Home() {
           </div>
         </>
       )}
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <p>Made with ❤️ for those who spark ideas</p>
+        <p className={styles.footerContact}>hello@sparkideas.app</p>
+        <p className={styles.footerCopy}>© 2026 Spark Ideas</p>
+      </footer>
 
       {/* Toast */}
       {toast && (

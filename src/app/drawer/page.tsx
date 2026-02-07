@@ -470,7 +470,7 @@ export default function DrawerPage() {
             onChange={(e) => { setQuickAdd(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuickAdd() } }}
             onPaste={handlePaste}
-            placeholder="Stash a thought, paste a link..."
+            placeholder="Add a thought, link..."
             className={styles.quickAddInput}
             rows={1}
           />
@@ -634,17 +634,16 @@ export default function DrawerPage() {
         </>
       )}
 
-      {/* ===== ADD OPTIONS MODAL (•••) ===== */}
+      {/* ===== ADD OPTIONS (•••) ===== */}
       {showAddOptions && (
         <>
           <div className={styles.overlay} onClick={() => setShowAddOptions(false)} />
-          <div className={styles.addOptionsModal}>
-            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); imageInputRef.current?.click() }}>Choose image</button>
-            <button className={styles.addOption} onClick={() => { setShowAddOptions(false); fileInputRef.current?.click() }}>Add file</button>
-            <button className={styles.addOption} onClick={handlePasteLinkOption}>Paste link</button>
+          <div className={styles.dropMenu}>
             {isMobile && (
-              <button className={styles.addOption} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take photo</button>
+              <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); cameraInputRef.current?.click() }}>Take Photo</button>
             )}
+            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); imageInputRef.current?.click() }}>Add Image</button>
+            <button className={styles.dropMenuItem} onClick={() => { setShowAddOptions(false); fileInputRef.current?.click() }}>Add File</button>
           </div>
         </>
       )}

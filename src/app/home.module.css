@@ -776,7 +776,7 @@
 
 /* About Modal */
 .aboutBody {
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .aboutDesc {
@@ -786,24 +786,28 @@
   margin-bottom: 10px;
 }
 
-.aboutFooter {
-  border-top: 1px solid var(--border-light);
-  padding-top: 16px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-secondary);
+.aboutDesc:last-child {
+  margin-bottom: 0;
 }
 
-.aboutContact {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 8px;
+.gotItBtn {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px;
+  font-size: 14px;
+  font-family: 'DM Sans', system-ui;
+  font-weight: 500;
+  background: var(--spark-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.aboutCopy {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  margin-top: 4px;
+.gotItBtn:hover {
+  background: var(--spark-hover);
 }
 
 /* Settings Modal */
@@ -1033,6 +1037,30 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.footerContact {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
+.footerCopy {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
 }
 
 /* ========================================

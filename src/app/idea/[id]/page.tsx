@@ -667,7 +667,16 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
         {isArchived ? (
           <div className={styles.archivedNavActions}>
             <span className={styles.archivedBadge}>Archived</span>
-            <button onClick={unarchiveIdea} className={styles.unarchiveBtn}>Restore</button>
+            <div className={styles.menuWrapper}>
+              <button onClick={(e) => { e.stopPropagation(); setShowIdeaMenu(!showIdeaMenu) }} className={styles.moreBtn}>•••</button>
+              {showIdeaMenu && (
+                <div className={styles.dropMenu}>
+                  <button className={styles.dropMenuItem} onClick={() => { setShowIdeaMenu(false); unarchiveIdea() }}>Restore idea</button>
+                  <div className={styles.dropMenuDivider} />
+                  <button className={`${styles.dropMenuItem} ${styles.dangerItem}`} onClick={() => { setShowIdeaMenu(false); deleteIdea() }}>Delete idea</button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
         <div className={styles.menuWrapper}>
@@ -776,19 +785,16 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
             <button onClick={(e) => { e.stopPropagation(); setShowAddMenu(!showAddMenu) }} className={styles.moreBtn}>•••</button>
             {showAddMenu && (
               <div className={styles.dropMenu}>
-                <button className={styles.dropMenuItem} onClick={() => { photoInputRef.current?.click(); setShowAddMenu(false) }}>
-                  {mobile ? 'Photo Library' : 'Choose Image'}
-                </button>
                 {mobile && (
                   <button className={styles.dropMenuItem} onClick={() => { cameraInputRef.current?.click(); setShowAddMenu(false) }}>
                     Take Photo
                   </button>
                 )}
+                <button className={styles.dropMenuItem} onClick={() => { photoInputRef.current?.click(); setShowAddMenu(false) }}>
+                  Add Image
+                </button>
                 <button className={styles.dropMenuItem} onClick={() => { fileInputRef.current?.click(); setShowAddMenu(false) }}>
                   Add File
-                </button>
-                <button className={styles.dropMenuItem} onClick={() => { setShowAddMenu(false); setQuickAdd('https://') }}>
-                  Paste Link
                 </button>
               </div>
             )}
