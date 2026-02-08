@@ -1055,3 +1055,23 @@
 .scoutDeeperContent { font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
 .scoutDeeperContent p { margin-bottom: 10px; }
 .scoutDeeperContent p:last-child { margin-bottom: 0; }
+
+
+/* Empty timeline state */
+.emptyTimeline {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.emptyTimeline p {
+  font-family: "DM Sans", system-ui;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.emptyTimeline .muted {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin: 0;
+}

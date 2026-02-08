@@ -493,8 +493,8 @@ export default function JotsPage() {
 
         {elements.length === 0 ? (
           <div className={styles.empty}>
-            <p>No jots yet.</p>
-            <p className={styles.muted}>Quick thoughts, links, and files that don't belong to an idea yet.</p>
+            <p>Nothing here yet.</p>
+            <p className={styles.muted}>Drop in thoughts, links, images — anything that catches your eye.</p>
           </div>
         ) : (
           <div className={styles.elementList}>

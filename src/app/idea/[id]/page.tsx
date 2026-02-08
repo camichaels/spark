@@ -821,7 +821,15 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
         <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.ppt,.pptx,.zip" onChange={handleFileInput} style={{ display: 'none' }} />
 
         {/* Timeline */}
-        {elements.length > 0 && (
+        {elements.length === 0 ? (
+          <section>
+            <div className={styles.timelineHeader}><span className={styles.sectionLabel}>Timeline</span></div>
+            <div className={styles.emptyTimeline}>
+              <p>No elements yet.</p>
+              <p className={styles.muted}>Add a thought, link, image, or file. Or spark it to get the conversation started.</p>
+            </div>
+          </section>
+        ) : (
           <section>
             <div className={styles.timelineHeader}><span className={styles.sectionLabel}>Timeline</span></div>
             <div className={styles.timeline}>

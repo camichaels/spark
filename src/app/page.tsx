@@ -496,7 +496,7 @@ export default function Home() {
           {ideasLoaded && ideas.length === 0 && !showNew ? (
             <div className={styles.emptyIdeas}>
               <p>No ideas yet.</p>
-              <p className={styles.muted}>Tap + New to start your first Idea.</p>
+              <p className={styles.muted}>Start with + New if you know what you're chasing, or try Scouts to explore what's interesting.</p>
             </div>
           ) : ideas.length > 0 ? (
             <div className={styles.ideaList}>
@@ -695,20 +695,25 @@ export default function Home() {
               </p>
               <p className={styles.aboutSubhead}>How to use Spark</p>
               <p className={styles.aboutDesc}>
-                Start with a question or idea you want to develop. Write your current thinking at 
-                the top — this is your evolving thesis, in your words.
+                <strong>Scouts:</strong> Don't have a thesis yet? Send out scouts. Pick topics you're 
+                curious about and Spark will surface provocations — interesting tensions, emerging 
+                patterns, contrarian takes. When something looks interesting, save it to Jots or 
+                start a new Idea.
               </p>
               <p className={styles.aboutDesc}>
-                Add elements below: thoughts, links, images, PDFs. These are inputs that inform 
-                your thinking, not an exhaustive collection.
+                <strong>Jots:</strong> A holding area for thoughts, links, images, and scouts that 
+                don't have a home yet. Capture things when they catch your attention. Send them to 
+                Ideas when you're ready.
               </p>
               <p className={styles.aboutDesc}>
+                <strong>Ideas:</strong> Write your current thinking at the top. This is your evolving 
+                thesis, in your words. Add elements below — thoughts, links, images, PDFs, scouts. 
                 When you're ready, spark it. AI will challenge your assumptions, surface patterns, 
-                or suggest new directions — but it won't give you answers. Every response ends 
-                with a question back to you.
+                or suggest new directions, but it won't give you answers. Every response ends with 
+                a question back to you.
               </p>
               <p className={styles.aboutDesc}>
-                The goal isn't AI-generated insight. It's your insight, sharpened by friction.
+                The goal isn't AI-generated insight. It's your thoughts, sharpened by friction.
               </p>
             </div>
             <button onClick={() => setShowAbout(false)} className={styles.gotItBtn}>Got it</button>
