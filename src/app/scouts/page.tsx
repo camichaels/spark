@@ -23,21 +23,27 @@ const DEEPER_LENSES = [
   { id: 'sources', label: 'Find real sources' },
 ]
 
+type DeeperResult = {
+  lens: string
+  lensId: string
+  content: string
+}
+
 type Scout = {
   id: string
   title: string
   zone: string
   expanded?: string
-  deeper?: {
-    lens: string
-    content: string
-  }
+  deeperResults?: DeeperResult[]  // Multiple go-deeper results
+  savedToJots?: boolean  // Track if already saved
 }
 
 type Idea = {
   id: string
   title: string
 }
+
+const SCOUTS_STORAGE_KEY = 'spark-scouts-session'
 
 export default function ScoutsPage() {
   const router = useRouter()
@@ -68,7 +74,26 @@ export default function ScoutsPage() {
   useEffect(() => {
     loadSettings()
     loadIdeas()
+    loadScoutsFromSession()
   }, [])
+
+  // Save scouts to sessionStorage when they change
+  useEffect(() => {
+    if (scouts.length > 0) {
+      sessionStorage.setItem(SCOUTS_STORAGE_KEY, JSON.stringify(scouts))
+    }
+  }, [scouts])
+
+  function loadScoutsFromSession() {
+    try {
+      const saved = sessionStorage.getItem(SCOUTS_STORAGE_KEY)
+      if (saved) {
+        setScouts(JSON.parse(saved))
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
 
   function showToast(message: string) {
     if (toastTimer.current) clearTimeout(toastTimer.current)
@@ -141,7 +166,13 @@ export default function ScoutsPage() {
       return
     }
 
+    // Collapse topics when generating
+    setShowTopics(false)
     setGenerating(true)
+    
+    // Clear previous scouts from session
+    sessionStorage.removeItem(SCOUTS_STORAGE_KEY)
+    
     const { data: { session } } = await supabase.auth.getSession()
     const token = session?.access_token
     if (!token) {
@@ -225,6 +256,15 @@ export default function ScoutsPage() {
       return
     }
 
+    // Build context from all previous deeper results
+    let fullContext = expandedScout.expanded || ''
+    if (expandedScout.deeperResults?.length) {
+      fullContext += '\n\nPrevious explorations:\n'
+      expandedScout.deeperResults.forEach(d => {
+        fullContext += `\n${d.lens}:\n${d.content}\n`
+      })
+    }
+
     try {
       const res = await fetch('/api/scouts', {
         method: 'POST',
@@ -234,7 +274,7 @@ export default function ScoutsPage() {
           scout: { 
             title: expandedScout.title, 
             zone: expandedScout.zone,
-            expanded: expandedScout.expanded,
+            expanded: fullContext,
           },
           lens,
         }),
@@ -243,9 +283,14 @@ export default function ScoutsPage() {
       if (res.ok) {
         const data = await res.json()
         const lensLabel = DEEPER_LENSES.find(l => l.id === lens)?.label || lens
+        const newDeeperResult: DeeperResult = {
+          lens: lensLabel,
+          lensId: lens,
+          content: data.content
+        }
         const updatedScout = { 
           ...expandedScout, 
-          deeper: { lens: lensLabel, content: data.content }
+          deeperResults: [...(expandedScout.deeperResults || []), newDeeperResult]
         }
         setScouts(prev => prev.map(s => s.id === expandedScout.id ? updatedScout : s))
         setExpandedScout(updatedScout)
@@ -257,15 +302,29 @@ export default function ScoutsPage() {
     }
   }
 
+  // Get lenses that haven't been used yet on this scout
+  function getAvailableLenses(): typeof DEEPER_LENSES {
+    if (!expandedScout?.deeperResults?.length) return DEEPER_LENSES
+    const usedLensIds = expandedScout.deeperResults.map(d => d.lensId)
+    return DEEPER_LENSES.filter(l => !usedLensIds.includes(l.id))
+  }
+
   async function saveToJots() {
     if (!expandedScout) return
+    if (expandedScout.savedToJots) {
+      showToast('Already saved to Jots')
+      return
+    }
 
     const { data: { session } } = await supabase.auth.getSession()
     const userId = session?.user?.id
-    if (!userId) return
+    if (!userId) {
+      showToast('Not logged in')
+      return
+    }
 
     // Build content from scout
-    let content = expandedScout.title
+    const content = expandedScout.title
     const metadata: Record<string, unknown> = {
       source: 'scout',
       zone: expandedScout.zone,
@@ -274,9 +333,8 @@ export default function ScoutsPage() {
     if (expandedScout.expanded) {
       metadata.expanded = expandedScout.expanded
     }
-    if (expandedScout.deeper) {
-      metadata.deeper_lens = expandedScout.deeper.lens
-      metadata.deeper_content = expandedScout.deeper.content
+    if (expandedScout.deeperResults?.length) {
+      metadata.deeper_results = expandedScout.deeperResults
     }
 
     const { error } = await supabase.from('elements').insert({
@@ -289,35 +347,40 @@ export default function ScoutsPage() {
       is_archived: false,
     })
 
-    if (!error) {
-      showToast('Saved to Jots')
-      setExpandedScout(null)
+    if (error) {
+      console.error('Save to jots error:', error)
+      showToast('Failed to save')
+      return
     }
+
+    // Mark as saved
+    const updatedScout = { ...expandedScout, savedToJots: true }
+    setScouts(prev => prev.map(s => s.id === expandedScout.id ? updatedScout : s))
+    setExpandedScout(updatedScout)
+    showToast('Saved to Jots')
   }
 
   function openStartIdea() {
     if (!expandedScout) return
     
-    // Pre-fill with scout content
-    const titleWords = expandedScout.title.split(' ').slice(0, 6).join(' ')
-    setIdeaTitle(titleWords.length < expandedScout.title.length ? titleWords + '...' : titleWords)
+    // Pre-fill title with short version
+    const titleWords = expandedScout.title.split(' ').slice(0, 5).join(' ')
+    setIdeaTitle(titleWords.length < expandedScout.title.length ? titleWords + '...' : expandedScout.title)
     
-    let thinking = expandedScout.title
-    if (expandedScout.deeper) {
-      thinking += '\n\n' + expandedScout.deeper.content
-    }
-    setIdeaThinking(thinking)
+    // Leave current thinking blank — scout content becomes first element
+    setIdeaThinking('')
     setShowStartIdea(true)
   }
 
   async function createIdea() {
-    if (!ideaTitle.trim()) return
+    if (!ideaTitle.trim() || !expandedScout) return
 
     const { data: { session } } = await supabase.auth.getSession()
     const userId = session?.user?.id
     if (!userId) return
 
-    const { data, error } = await supabase
+    // Create the idea
+    const { data: ideaData, error: ideaError } = await supabase
       .from('ideas')
       .insert({
         user_id: userId,
@@ -328,9 +391,37 @@ export default function ScoutsPage() {
       .select()
       .single()
 
-    if (!error && data) {
-      router.push(`/idea/${data.id}`)
+    if (ideaError || !ideaData) {
+      showToast('Failed to create idea')
+      return
     }
+
+    // Save scout content as first element
+    const metadata: Record<string, unknown> = {
+      source: 'scout',
+      zone: expandedScout.zone,
+    }
+    if (expandedScout.expanded) {
+      metadata.expanded = expandedScout.expanded
+    }
+    if (expandedScout.deeperResults?.length) {
+      metadata.deeper_results = expandedScout.deeperResults
+    }
+
+    await supabase.from('elements').insert({
+      user_id: userId,
+      idea_id: ideaData.id,
+      type: 'scout',
+      source: 'ai',
+      content: expandedScout.title,
+      metadata,
+      is_archived: false,
+    })
+
+    // Navigate to the new idea
+    setShowStartIdea(false)
+    setExpandedScout(null)
+    router.push(`/idea/${ideaData.id}`)
   }
 
   function closeExpanded() {
@@ -353,7 +444,10 @@ export default function ScoutsPage() {
   }
 
   // Expanded view
-  if (expandedScout) {
+  if (expandedScout && !showStartIdea) {
+    const availableLenses = getAvailableLenses()
+    const hasMoreLenses = availableLenses.length > 0
+
     return (
       <div className={styles.page}>
         <nav className={styles.nav}>
@@ -373,25 +467,25 @@ export default function ScoutsPage() {
               </div>
             )}
 
-            {/* Deeper result */}
-            {expandedScout.deeper && (
-              <div className={styles.deeperResult}>
-                <div className={styles.deeperLabel}>⚡ {expandedScout.deeper.lens}</div>
+            {/* All deeper results */}
+            {expandedScout.deeperResults?.map((deeper, idx) => (
+              <div key={idx} className={styles.deeperResult}>
+                <div className={styles.deeperLabel}>⚡ {deeper.lens}</div>
                 <div className={styles.deeperContent}>
-                  {expandedScout.deeper.content.split('\n\n').map((p, i) => (
+                  {deeper.content.split('\n\n').map((p, i) => (
                     <p key={i}>{p}</p>
                   ))}
                 </div>
               </div>
-            )}
+            ))}
           </div>
 
           {/* Lenses picker */}
-          {showLenses && !expandedScout.deeper && (
+          {showLenses && hasMoreLenses && (
             <div className={styles.lensesCard}>
               <h3 className={styles.lensesTitle}>Go deeper on this:</h3>
               <div className={styles.lensesList}>
-                {DEEPER_LENSES.map(lens => (
+                {availableLenses.map(lens => (
                   <button
                     key={lens.id}
                     className={styles.lensBtn}
@@ -408,13 +502,13 @@ export default function ScoutsPage() {
           {/* Loading state for deepening */}
           {deepeningLens && (
             <div className={styles.thinkingState}>
-              <span className={styles.thinkingText}>Thinking...</span>
+              <span className={styles.thinkingText}>⚡ Thinking...</span>
             </div>
           )}
 
           {/* Actions */}
           <div className={styles.actionRow}>
-            {!expandedScout.deeper && !showLenses && !deepeningLens && (
+            {hasMoreLenses && !showLenses && !deepeningLens && (
               <button 
                 className={styles.actionBtnSecondary}
                 onClick={() => setShowLenses(true)}
@@ -423,10 +517,11 @@ export default function ScoutsPage() {
               </button>
             )}
             <button 
-              className={styles.actionBtnTertiary}
+              className={`${styles.actionBtnTertiary} ${expandedScout.savedToJots ? styles.actionBtnDisabled : ''}`}
               onClick={saveToJots}
+              disabled={expandedScout.savedToJots}
             >
-              Save to Jots
+              {expandedScout.savedToJots ? 'Saved ✓' : 'Save to Jots'}
             </button>
             <button 
               className={styles.actionBtnPrimary}
@@ -508,7 +603,7 @@ export default function ScoutsPage() {
                 disabled={expandingId !== null}
               >
                 {expandingId === scout.id ? (
-                  <p className={styles.scoutText}>Loading...</p>
+                  <p className={styles.scoutTextLoading}>⚡ Expanding...</p>
                 ) : (
                   <>
                     <p className={styles.scoutText}>{scout.title}</p>
@@ -559,15 +654,15 @@ export default function ScoutsPage() {
                 />
               </div>
               <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Current Thinking</label>
+                <label className={styles.fieldLabel}>Current Thinking (optional)</label>
                 <textarea
                   value={ideaThinking}
                   onChange={(e) => setIdeaThinking(e.target.value)}
                   className={styles.fieldTextarea}
-                  placeholder="Your starting thesis..."
-                  rows={5}
+                  placeholder="What's your initial thesis? You can add this later..."
+                  rows={3}
                 />
-                <p className={styles.fieldHint}>This is your starting thesis. You'll refine it as you develop the idea.</p>
+                <p className={styles.fieldHint}>The scout content will be saved as your first element.</p>
               </div>
             </div>
             <div className={styles.modalActions}>

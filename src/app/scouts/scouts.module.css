@@ -7,9 +7,6 @@
 }
 
 .nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,7 +31,7 @@
 .container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 0 20px 24px;
 }
 
 .header {
@@ -182,6 +179,13 @@
   line-height: 1.45;
   margin-bottom: 10px;
   color: var(--text-primary);
+}
+
+.scoutTextLoading {
+  font-family: 'DM Sans', system-ui;
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-style: italic;
 }
 
 .scoutZone {
@@ -337,12 +341,15 @@
 .thinkingState {
   text-align: center;
   padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
 
 .thinkingText {
   font-size: 14px;
-  color: var(--text-tertiary);
-  font-style: italic;
+  color: var(--spark-primary);
 }
 
 /* Action row */
@@ -404,6 +411,16 @@
 .actionBtnTertiary:hover {
   border-color: var(--border-medium);
   color: var(--text-primary);
+}
+
+.actionBtnDisabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.actionBtnDisabled:hover {
+  border-color: var(--border-light);
+  color: var(--text-secondary);
 }
 
 /* Modal */
