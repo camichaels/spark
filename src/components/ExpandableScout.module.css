@@ -1,0 +1,81 @@
+.scout { }
+
+.title {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.details {
+  margin-top: 12px;
+}
+
+.expanded {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.expanded p {
+  margin-bottom: 10px;
+}
+
+.expanded p:last-child {
+  margin-bottom: 0;
+}
+
+.deeperResults {
+  margin-top: 12px;
+}
+
+.deeperItem {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 12px;
+}
+
+.deeperItem:first-child {
+  margin-top: 0;
+}
+
+.deeperLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--spark-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.deeperContent {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.deeperContent p {
+  margin-bottom: 10px;
+}
+
+.deeperContent p:last-child {
+  margin-bottom: 0;
+}
+
+.toggle {
+  margin-top: 8px;
+  padding: 0;
+  font-family: 'DM Sans', system-ui;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  color: var(--text-secondary);
+}

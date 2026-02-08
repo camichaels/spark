@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import styles from './idea.module.css'
 import ImageThumbnail from '@/components/ImageThumbnail'
 import ExpandableText from '@/components/ExpandableText'
+import ExpandableScout from '@/components/ExpandableScout'
 import { buildMiniSparkPrompt, buildElementContext } from '@/lib/prompts'
 
 type Idea = {
@@ -627,35 +628,11 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
       const deeperResults = meta.deeper_results as Array<{ lens: string; content: string }> | undefined
       const scoutTitle = el.content ?? ''
       return (
-        <>
-          {/* Main provocation */}
-          <div className={styles.scoutTitle}>{scoutTitle}</div>
-          
-          {/* Expanded context */}
-          {meta.expanded && (
-            <div className={styles.scoutExpanded}>
-              {String(meta.expanded).split('\n\n').map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          )}
-          
-          {/* Deeper results */}
-          {deeperResults && deeperResults.length > 0 && (
-            <div className={styles.scoutDeeperResults}>
-              {deeperResults.map((deeper, idx) => (
-                <div key={idx} className={styles.scoutDeeperItem}>
-                  <div className={styles.scoutDeeperLabel}>⚡ {deeper.lens}</div>
-                  <div className={styles.scoutDeeperContent}>
-                    {deeper.content.split('\n\n').map((p, i) => (
-                      <p key={i}>{p}</p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+        <ExpandableScout 
+          title={scoutTitle}
+          expanded={meta.expanded as string | undefined}
+          deeperResults={deeperResults}
+        />
       )
     }
 
