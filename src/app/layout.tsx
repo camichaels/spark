@@ -5,6 +5,9 @@ import ThemeInitializer from '@/components/ThemeInitializer'
 export const metadata: Metadata = {
   title: 'Spark',
   description: 'Develop your thinking',
+  icons: {
+    icon: '/spark-icon-64.png',
+  },
 }
 
 export const viewport: Viewport = {
