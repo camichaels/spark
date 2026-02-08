@@ -6,7 +6,7 @@ import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import styles from './home.module.css'
 
-const MAX_ACTIVE_IDEAS = 5
+const MAX_ACTIVE_IDEAS = 10
 
 type Idea = {
   id: string
@@ -493,12 +493,12 @@ export default function Home() {
             </div>
           )}
 
-          {ideas.length === 0 && !showNew ? (
+          {ideasLoaded && ideas.length === 0 && !showNew ? (
             <div className={styles.emptyIdeas}>
               <p>No ideas yet.</p>
               <p className={styles.muted}>Tap + New to start your first Idea.</p>
             </div>
-          ) : (
+          ) : ideas.length > 0 ? (
             <div className={styles.ideaList}>
               {ideas.map((idea) => (
                 <div
@@ -513,7 +513,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
 
           {/* Archived — inside the Ideas box */}
           {archivedIdeas.length > 0 && (

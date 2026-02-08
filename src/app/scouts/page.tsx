@@ -317,8 +317,7 @@ export default function ScoutsPage() {
     }
 
     const { data: { session } } = await supabase.auth.getSession()
-    const userId = session?.user?.id
-    if (!userId) {
+    if (!session?.user?.id) {
       showToast('Not logged in')
       return
     }
@@ -337,10 +336,11 @@ export default function ScoutsPage() {
       metadata.deeper_results = expandedScout.deeperResults
     }
 
+    // Use 'thought' type for compatibility, mark as scout in metadata
     const { error } = await supabase.from('elements').insert({
-      user_id: userId,
+      user_id: session.user.id,
       idea_id: null,
-      type: 'scout',
+      type: 'thought',
       source: 'ai',
       content,
       metadata,
@@ -349,7 +349,7 @@ export default function ScoutsPage() {
 
     if (error) {
       console.error('Save to jots error:', error)
-      showToast('Failed to save')
+      showToast('Failed to save: ' + error.message)
       return
     }
 
@@ -376,14 +376,16 @@ export default function ScoutsPage() {
     if (!ideaTitle.trim() || !expandedScout) return
 
     const { data: { session } } = await supabase.auth.getSession()
-    const userId = session?.user?.id
-    if (!userId) return
+    if (!session?.user?.id) {
+      showToast('Not logged in')
+      return
+    }
 
     // Create the idea
     const { data: ideaData, error: ideaError } = await supabase
       .from('ideas')
       .insert({
-        user_id: userId,
+        user_id: session.user.id,
         title: ideaTitle.trim(),
         current_thinking: ideaThinking.trim() || null,
         status: 'active',
@@ -396,7 +398,7 @@ export default function ScoutsPage() {
       return
     }
 
-    // Save scout content as first element
+    // Save scout content as first element (use 'thought' type for compatibility)
     const metadata: Record<string, unknown> = {
       source: 'scout',
       zone: expandedScout.zone,
@@ -409,9 +411,9 @@ export default function ScoutsPage() {
     }
 
     await supabase.from('elements').insert({
-      user_id: userId,
+      user_id: session.user.id,
       idea_id: ideaData.id,
-      type: 'scout',
+      type: 'thought',
       source: 'ai',
       content: expandedScout.title,
       metadata,
@@ -637,7 +639,7 @@ export default function ScoutsPage() {
       {showStartIdea && (
         <>
           <div className={styles.overlay} onClick={() => setShowStartIdea(false)} />
-          <div className={styles.modal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <span className={styles.modalTitle}>Start Idea</span>
               <button onClick={() => setShowStartIdea(false)} className={styles.closeBtn}>✕</button>
@@ -651,6 +653,7 @@ export default function ScoutsPage() {
                   onChange={(e) => setIdeaTitle(e.target.value)}
                   className={styles.fieldInput}
                   placeholder="Give your idea a name..."
+                  autoComplete="off"
                 />
               </div>
               <div className={styles.fieldGroup}>
