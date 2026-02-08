@@ -443,9 +443,9 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
     finally { setSparkLoading(null) }
   }
 
-  async function fireMiniSpark(el: Element) {
+  async function fireMiniSpark(el: Element, type: 'summarize') {
     if (!idea) return
-    const loadingKey = `summarize-${el.id}`
+    const loadingKey = `${type}-${el.id}`
     setMiniSparkLoading(loadingKey)
     const token = await getAccessToken()
     if (!token) return
@@ -469,7 +469,7 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
       elUrl,
       elFilename
     )
-    const prompt = buildMiniSparkPrompt('summarize', elementContext, hasLimitedContext)
+    const prompt = buildMiniSparkPrompt(type, elementContext, hasLimitedContext)
 
     // Build request — include attachment info for files and images
     const requestBody: Record<string, unknown> = {
@@ -496,7 +496,12 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
 
       if (res.ok) {
         const data = await res.json()
-        const updatedMetadata = { ...el.metadata, summary: data.content }
+        const updatedMetadata = { ...el.metadata }
+        if (type === 'summarize') {
+          updatedMetadata.summary = data.content
+        } else {
+          updatedMetadata.related = data.content
+        }
         await supabase.from('elements').update({ metadata: updatedMetadata }).eq('id', el.id)
         loadElements()
       }
@@ -614,6 +619,44 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
           </a>
         )
       }
+    }
+
+    // Scout content (from Scouts page)
+    if (el.type === 'scout') {
+      const meta = el.metadata || {}
+      const deeperResults = meta.deeper_results as Array<{ lens: string; content: string }> | undefined
+      const scoutTitle = el.content ?? ''
+      return (
+        <>
+          {/* Main provocation */}
+          <div className={styles.scoutTitle}>{scoutTitle}</div>
+          
+          {/* Expanded context */}
+          {meta.expanded && (
+            <div className={styles.scoutExpanded}>
+              {String(meta.expanded).split('\n\n').map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
+          
+          {/* Deeper results */}
+          {deeperResults && deeperResults.length > 0 && (
+            <div className={styles.scoutDeeperResults}>
+              {deeperResults.map((deeper, idx) => (
+                <div key={idx} className={styles.scoutDeeperItem}>
+                  <div className={styles.scoutDeeperLabel}>⚡ {deeper.lens}</div>
+                  <div className={styles.scoutDeeperContent}>
+                    {deeper.content.split('\n\n').map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )
     }
 
     // Default: thought text with expandable
@@ -737,9 +780,8 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
           <div className={styles.sparkLabel}>⚡ Spark It</div>
           <div className={styles.sparkButtons}>
             <button onClick={() => fireSpark('synthesize')} disabled={isSparkBusy} className={styles.sparkBtn}>Synthesize</button>
-            <button onClick={() => fireSpark('challenge')} disabled={isSparkBusy} className={styles.sparkBtn}>Challenge</button>
+            <button onClick={() => fireSpark('challenge')} disabled={isSparkBusy} className={styles.sparkBtn}>Challenge me</button>
             <button onClick={() => fireSpark('expand')} disabled={isSparkBusy} className={styles.sparkBtn}>Expand</button>
-            <button onClick={() => fireSpark('soWhat')} disabled={isSparkBusy} className={styles.sparkBtn}>So what?</button>
             <button onClick={() => setShowCustom(!showCustom)} disabled={isSparkBusy}
               className={`${styles.sparkBtn} ${showCustom ? styles.sparkBtnActive : ''}`}>Ask anything</button>
           </div>
@@ -815,6 +857,9 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                     {el.type === 'article' && !!el.metadata?.domain && (
                       <><span className={styles.metaDot}>·</span><span>{String(el.metadata.domain)}</span></>
                     )}
+                    {el.type === 'scout' && !!el.metadata?.zone && (
+                      <><span className={styles.metaDot}>·</span><span>{String(el.metadata.zone)}</span></>
+                    )}
                     <span className={styles.metaDot}>·</span>
                     <span>{formatDate(el.created_at)}</span>
                   </div>
@@ -848,6 +893,13 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                     </div>
                   )}
 
+                  {!!el.metadata?.related && (
+                    <div className={styles.miniSparkResult}>
+                      <div className={styles.miniSparkLabel}>⚡ Related</div>
+                      <div className={styles.miniSparkText}>{String(el.metadata.related)}</div>
+                    </div>
+                  )}
+
                   {!!el.metadata?.note && editingNoteId !== el.id && (
                     <div className={styles.noteDisplay}>
                       {String(el.metadata.note)}
@@ -871,11 +923,15 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                         <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                           {!!el.metadata?.note ? 'Edit note' : '+ Add note'}
                         </button>
-                        {el.source !== 'ai' && !el.metadata?.summary && (
-                          <button onClick={() => fireMiniSpark(el)} disabled={miniSparkLoading !== null}
-                            className={`${styles.actionBtn} ${styles.miniSparkBtn}`}>
-                            {miniSparkLoading === `summarize-${el.id}` ? <span className={styles.miniSparkThinking}>Thinking...</span> : '⚡ Summarize'}
-                          </button>
+                        {el.source !== 'ai' && (
+                          <>
+                            {!el.metadata?.summary && (
+                              <button onClick={() => fireMiniSpark(el, 'summarize')} disabled={miniSparkLoading !== null}
+                                className={`${styles.actionBtn} ${styles.miniSparkBtn}`}>
+                                {miniSparkLoading === `summarize-${el.id}` ? <span className={styles.miniSparkThinking}>Thinking...</span> : '⚡ Summarize'}
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                       <div className={styles.menuWrapper}>
@@ -916,6 +972,9 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                       </span>
                       {el.type === 'article' && !!el.metadata?.domain && (
                         <><span className={styles.metaDot}>·</span><span>{String(el.metadata.domain)}</span></>
+                      )}
+                      {el.type === 'scout' && !!el.metadata?.zone && (
+                        <><span className={styles.metaDot}>·</span><span>{String(el.metadata.zone)}</span></>
                       )}
                       <span className={styles.metaDot}>·</span>
                       <span>{formatDate(el.created_at)}</span>

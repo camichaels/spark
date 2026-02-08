@@ -360,8 +360,8 @@ export default function JotsPage() {
     const meta = el.metadata || {}
     const parts: string[] = []
     
-    // Check if it's a scout (saved from Scouts page)
-    if (meta.source === 'scout') {
+    // Check if it's a scout
+    if (el.type === 'scout') {
       parts.push('SCOUT')
       if (meta.zone) parts.push(String(meta.zone))
     } else {
@@ -383,7 +383,7 @@ export default function JotsPage() {
     const elUrl = metaUrl(meta)
 
     // Scout content (from Scouts page)
-    if (meta.source === 'scout') {
+    if (el.type === 'scout') {
       const deeperResults = meta.deeper_results as Array<{ lens: string; content: string }> | undefined
       return (
         <>

@@ -36,7 +36,6 @@ type Scout = {
   zone: string
   expanded?: string
   deeperResults?: DeeperResult[]  // Multiple go-deeper results
-  savedToJots?: boolean  // Track if already saved
 }
 
 type Idea = {
@@ -53,6 +52,7 @@ export default function ScoutsPage() {
   const [showTopics, setShowTopics] = useState(false)
   const [scouts, setScouts] = useState<Scout[]>([])
   const [generating, setGenerating] = useState(false)
+  const [generatingMore, setGeneratingMore] = useState(false)
   
   // Expanded scout view
   const [expandedScout, setExpandedScout] = useState<Scout | null>(null)
@@ -89,7 +89,10 @@ export default function ScoutsPage() {
     try {
       const saved = sessionStorage.getItem(SCOUTS_STORAGE_KEY)
       if (saved) {
-        setScouts(JSON.parse(saved))
+        const parsed = JSON.parse(saved)
+        setScouts(parsed)
+        // Keep topics collapsed if we have scouts
+        setShowTopics(false)
       }
     } catch {
       // Ignore parse errors
@@ -169,7 +172,13 @@ export default function ScoutsPage() {
 
     // Collapse topics when generating
     setShowTopics(false)
-    setGenerating(true)
+    
+    // Set appropriate loading state
+    if (append) {
+      setGeneratingMore(true)
+    } else {
+      setGenerating(true)
+    }
     
     // Clear previous scouts from session only if not appending
     if (!append) {
@@ -180,6 +189,7 @@ export default function ScoutsPage() {
     const token = session?.access_token
     if (!token) {
       setGenerating(false)
+      setGeneratingMore(false)
       return
     }
 
@@ -212,6 +222,7 @@ export default function ScoutsPage() {
       console.error('Generate scouts error:', err)
     } finally {
       setGenerating(false)
+      setGeneratingMore(false)
     }
   }
 
@@ -320,10 +331,6 @@ export default function ScoutsPage() {
 
   async function saveToJots() {
     if (!expandedScout) return
-    if (expandedScout.savedToJots) {
-      showToast('Already saved to Jots')
-      return
-    }
 
     const { data: { session } } = await supabase.auth.getSession()
     if (!session?.user?.id) {
@@ -334,7 +341,6 @@ export default function ScoutsPage() {
     // Build content from scout
     const content = expandedScout.title
     const metadata: Record<string, unknown> = {
-      source: 'scout',
       zone: expandedScout.zone,
     }
     
@@ -345,11 +351,11 @@ export default function ScoutsPage() {
       metadata.deeper_results = expandedScout.deeperResults
     }
 
-    // Use 'thought' type for compatibility, mark as scout in metadata
+    // Use 'scout' type
     const { error } = await supabase.from('elements').insert({
       user_id: session.user.id,
       idea_id: null,
-      type: 'thought',
+      type: 'scout',
       source: 'ai',
       content,
       metadata,
@@ -362,10 +368,6 @@ export default function ScoutsPage() {
       return
     }
 
-    // Mark as saved
-    const updatedScout = { ...expandedScout, savedToJots: true }
-    setScouts(prev => prev.map(s => s.id === expandedScout.id ? updatedScout : s))
-    setExpandedScout(updatedScout)
     showToast('Saved to Jots')
   }
 
@@ -407,9 +409,8 @@ export default function ScoutsPage() {
       return
     }
 
-    // Save scout content as first element (use 'thought' type for compatibility)
+    // Save scout content as first element with 'scout' type
     const metadata: Record<string, unknown> = {
-      source: 'scout',
       zone: expandedScout.zone,
     }
     if (expandedScout.expanded) {
@@ -422,7 +423,7 @@ export default function ScoutsPage() {
     await supabase.from('elements').insert({
       user_id: session.user.id,
       idea_id: ideaData.id,
-      type: 'thought',
+      type: 'scout',
       source: 'ai',
       content: expandedScout.title,
       metadata,
@@ -528,11 +529,10 @@ export default function ScoutsPage() {
               </button>
             )}
             <button 
-              className={`${styles.actionBtnTertiary} ${expandedScout.savedToJots ? styles.actionBtnDisabled : ''}`}
+              className={styles.actionBtnTertiary}
               onClick={saveToJots}
-              disabled={expandedScout.savedToJots}
             >
-              {expandedScout.savedToJots ? 'Saved ✓' : 'Save to Jots'}
+              Save to Jots
             </button>
             <button 
               className={styles.actionBtnPrimary}
@@ -598,9 +598,9 @@ export default function ScoutsPage() {
         <button
           className={styles.generateBtn}
           onClick={() => generateScouts(false)}
-          disabled={generating || interests.length === 0}
+          disabled={generating || generatingMore || interests.length === 0}
         >
-          {generating ? 'Scouting...' : '⚡ Send out scouts'}
+          {generating ? 'Scouting...' : '⚡ New scouts'}
         </button>
 
         {/* Scout cards */}
@@ -631,8 +631,9 @@ export default function ScoutsPage() {
           <button
             className={styles.generateMore}
             onClick={() => generateScouts(true)}
+            disabled={generatingMore}
           >
-            Generate more
+            {generatingMore ? 'Scouting...' : 'Generate more'}
           </button>
         )}
 
