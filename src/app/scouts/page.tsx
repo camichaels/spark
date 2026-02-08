@@ -161,7 +161,7 @@ export default function ScoutsPage() {
     saveInterests(newInterests)
   }
 
-  async function generateScouts() {
+  async function generateScouts(append: boolean = false) {
     if (interests.length === 0) {
       setShowTopics(true)
       return
@@ -171,8 +171,10 @@ export default function ScoutsPage() {
     setShowTopics(false)
     setGenerating(true)
     
-    // Clear previous scouts from session
-    sessionStorage.removeItem(SCOUTS_STORAGE_KEY)
+    // Clear previous scouts from session only if not appending
+    if (!append) {
+      sessionStorage.removeItem(SCOUTS_STORAGE_KEY)
+    }
     
     const { data: { session } } = await supabase.auth.getSession()
     const token = session?.access_token
@@ -198,7 +200,13 @@ export default function ScoutsPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setScouts(data.scouts || [])
+        if (append) {
+          // Add to existing scouts
+          setScouts(prev => [...prev, ...(data.scouts || [])])
+        } else {
+          // Replace scouts
+          setScouts(data.scouts || [])
+        }
       }
     } catch (err) {
       console.error('Generate scouts error:', err)
@@ -589,7 +597,7 @@ export default function ScoutsPage() {
         {/* Generate button */}
         <button
           className={styles.generateBtn}
-          onClick={generateScouts}
+          onClick={() => generateScouts(false)}
           disabled={generating || interests.length === 0}
         >
           {generating ? 'Scouting...' : '⚡ Send out scouts'}
@@ -622,7 +630,7 @@ export default function ScoutsPage() {
         {scouts.length > 0 && !generating && (
           <button
             className={styles.generateMore}
-            onClick={generateScouts}
+            onClick={() => generateScouts(true)}
           >
             Generate more
           </button>
