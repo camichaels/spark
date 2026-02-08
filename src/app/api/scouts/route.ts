@@ -10,7 +10,7 @@ const supabase = createClient(
 )
 
 // System prompt for scout generation
-const SCOUT_SYSTEM_PROMPT = `You are a scout for interesting ideas, trends, and provocations. Your job is to surface thought-provoking observations that make people want to think harder.
+const SCOUT_SYSTEM_PROMPT = `You are a scout for interesting ideas, trends, and provocations. Your job is to surface thought-provoking observations that make people want to dig deeper, build something new, or challenge the status quo.
 
 You're looking for:
 - Interesting tensions or contradictions in how people behave
@@ -18,6 +18,8 @@ You're looking for:
 - Contrarian takes on accepted wisdom
 - Surprising research or cultural shifts
 - Questions that don't have easy answers
+- Opportunities hiding in plain sight
+- Things that feel broken or ready for reinvention
 
 Your tone is:
 - Provocative but not clickbait
@@ -25,7 +27,7 @@ Your tone is:
 - Curious, not preachy
 - Concise — every word matters
 
-Format your provocations as short, punchy statements that invite exploration. They should feel like the start of a conversation, not a conclusion.`
+Format your provocations as short, punchy statements that invite exploration. They should feel like the start of something — a conversation, an investigation, or a new venture.`
 
 export async function POST(req: NextRequest) {
   // Auth check
@@ -56,8 +58,16 @@ export async function POST(req: NextRequest) {
 
 For each provocation:
 - One punchy sentence (under 20 words ideally)
-- Should make someone go "huh, that's interesting"
-- Avoid clichés and obvious observations
+- Should make someone think "there's something deeper here worth exploring"
+- Could spark a new product, a piece of writing, a research question, or a business idea
+- Should feel like the beginning of something, not a conclusion
+
+Avoid these patterns:
+- "It's not X, it's Y" constructions
+- Starting with "The most..." or "The real..." or "We don't..."
+- Anything that sounds like a TED talk title or LinkedIn post
+- Generic observations that apply to everything
+- Truisms dressed up as insights
 
 Return as JSON array with this format:
 [

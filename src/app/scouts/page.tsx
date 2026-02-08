@@ -6,13 +6,14 @@ import { useRouter } from 'next/navigation'
 import styles from './scouts.module.css'
 
 const INTEREST_OPTIONS = [
-  { id: 'tech_behavior', label: 'Tech & behavior' },
+  { id: 'technology', label: 'Technology' },
+  { id: 'science', label: 'Science & research' },
   { id: 'work_creativity', label: 'Work & creativity' },
-  { id: 'relationships', label: 'Relationships & connection' },
+  { id: 'relationships', label: 'Relationships' },
   { id: 'cities_spaces', label: 'Cities & spaces' },
-  { id: 'health_habits', label: 'Health & habits' },
-  { id: 'culture_trends', label: 'Culture & trends' },
-  { id: 'money_markets', label: 'Money & markets' },
+  { id: 'health', label: 'Health & wellness' },
+  { id: 'culture', label: 'Culture & media' },
+  { id: 'business', label: 'Business & economy' },
 ]
 
 const DEEPER_LENSES = [
@@ -420,10 +421,10 @@ export default function ScoutsPage() {
       is_archived: false,
     })
 
-    // Navigate to the new idea
+    // Stay on current view, just close modal and show toast
     setShowStartIdea(false)
-    setExpandedScout(null)
-    router.push(`/idea/${ideaData.id}`)
+    showToast(`Idea "${ideaTitle.trim()}" created!`)
+    loadIdeas() // Refresh ideas list
   }
 
   function closeExpanded() {

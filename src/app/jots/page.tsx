@@ -359,12 +359,20 @@ export default function JotsPage() {
   function getMetaString(el: Element): string {
     const meta = el.metadata || {}
     const parts: string[] = []
-    parts.push(el.type.toUpperCase())
-    const elUrl = metaUrl(meta)
-    if (el.type === 'article' && elUrl) {
-      try { parts.push(new URL(elUrl).hostname.replace('www.', '')) } catch { /* skip */ }
+    
+    // Check if it's a scout (saved from Scouts page)
+    if (meta.source === 'scout') {
+      parts.push('SCOUT')
+      if (meta.zone) parts.push(String(meta.zone))
+    } else {
+      parts.push(el.type.toUpperCase())
+      const elUrl = metaUrl(meta)
+      if (el.type === 'article' && elUrl) {
+        try { parts.push(new URL(elUrl).hostname.replace('www.', '')) } catch { /* skip */ }
+      }
+      if (el.type === 'file') parts.push(metaFilename(meta))
     }
-    if (el.type === 'file') parts.push(metaFilename(meta))
+    
     const d = new Date(el.created_at)
     parts.push(`${d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()} ${d.getDate()}`)
     return parts.join(' · ')
@@ -373,6 +381,42 @@ export default function JotsPage() {
   function renderElementContent(el: Element) {
     const meta = el.metadata || {}
     const elUrl = metaUrl(meta)
+
+    // Scout content (from Scouts page)
+    if (meta.source === 'scout') {
+      const deeperResults = meta.deeper_results as Array<{ lens: string; content: string }> | undefined
+      return (
+        <>
+          {/* Main provocation */}
+          <div className={styles.scoutTitle}>{el.content || ''}</div>
+          
+          {/* Expanded context */}
+          {meta.expanded && (
+            <div className={styles.scoutExpanded}>
+              {String(meta.expanded).split('\n\n').map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          )}
+          
+          {/* Deeper results */}
+          {deeperResults && deeperResults.length > 0 && (
+            <div className={styles.scoutDeeperResults}>
+              {deeperResults.map((deeper, idx) => (
+                <div key={idx} className={styles.scoutDeeperItem}>
+                  <div className={styles.scoutDeeperLabel}>⚡ {deeper.lens}</div>
+                  <div className={styles.scoutDeeperContent}>
+                    {deeper.content.split('\n\n').map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )
+    }
 
     if (el.type === 'article') {
       const title = (meta.title as string) || el.content
