@@ -849,10 +849,10 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
             <div className={styles.timelineHeader}><span className={styles.sectionLabel}>Timeline</span></div>
             <div className={styles.timeline}>
               {elements.map((el) => (
-                <div key={el.id} className={`${styles.element} ${el.source === 'ai' ? styles.sparkElement : ''}`}>
+                <div key={el.id} className={`${styles.element} ${el.source === 'ai' && el.type !== 'scout' ? styles.sparkElement : ''}`}>
                   <div className={styles.elementMeta}>
-                    <span className={el.source === 'ai' ? styles.sparkType : styles.elType}>
-                      {el.source === 'ai' ? renderSparkLabel(el) : el.type.charAt(0).toUpperCase() + el.type.slice(1)}
+                    <span className={el.type === 'scout' ? styles.elType : (el.source === 'ai' ? styles.sparkType : styles.elType)}>
+                      {el.type === 'scout' ? 'Scout' : (el.source === 'ai' ? renderSparkLabel(el) : el.type.charAt(0).toUpperCase() + el.type.slice(1))}
                     </span>
                     {el.type === 'article' && !!el.metadata?.domain && (
                       <><span className={styles.metaDot}>·</span><span>{String(el.metadata.domain)}</span></>
@@ -864,7 +864,7 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                     <span>{formatDate(el.created_at)}</span>
                   </div>
 
-                  {el.source === 'ai' && !!el.metadata?.prompt && (
+                  {el.source === 'ai' && el.type !== 'scout' && !!el.metadata?.prompt && (
                     <div className={styles.customPromptDisplay}>&ldquo;{String(el.metadata.prompt)}&rdquo;</div>
                   )}
 
@@ -923,7 +923,7 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                         <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                           {!!el.metadata?.note ? 'Edit note' : '+ Add note'}
                         </button>
-                        {el.source !== 'ai' && (
+                        {(el.source !== 'ai' || el.type === 'scout') && (
                           <>
                             {!el.metadata?.summary && (
                               <button onClick={() => fireMiniSpark(el, 'summarize')} disabled={miniSparkLoading !== null}
@@ -967,8 +967,8 @@ export default function IdeaView({ params }: { params: Promise<{ id: string }> }
                 {archivedElements.map((el) => (
                   <div key={el.id} className={styles.archivedElement}>
                     <div className={styles.elementMeta}>
-                      <span className={el.source === 'ai' ? styles.sparkType : styles.elType}>
-                        {el.source === 'ai' ? renderSparkLabel(el) : el.type.charAt(0).toUpperCase() + el.type.slice(1)}
+                      <span className={el.type === 'scout' ? styles.elType : (el.source === 'ai' ? styles.sparkType : styles.elType)}>
+                        {el.type === 'scout' ? 'Scout' : (el.source === 'ai' ? renderSparkLabel(el) : el.type.charAt(0).toUpperCase() + el.type.slice(1))}
                       </span>
                       {el.type === 'article' && !!el.metadata?.domain && (
                         <><span className={styles.metaDot}>·</span><span>{String(el.metadata.domain)}</span></>

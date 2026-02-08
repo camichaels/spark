@@ -582,7 +582,7 @@ export default function JotsPage() {
                       <button onClick={() => startEditNote(el)} className={styles.actionBtn}>
                         {el.metadata?.note ? 'Edit note' : '+ Add note'}
                       </button>
-                      {el.source !== 'ai' && !el.metadata?.summary && (
+                      {(el.source !== 'ai' || el.type === 'scout') && !el.metadata?.summary && (
                         <button 
                           onClick={() => fireMiniSpark(el)} 
                           disabled={miniSparkLoading !== null}
