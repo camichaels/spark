@@ -169,8 +169,146 @@ export default function Home() {
       .eq('user_id', user!.id)
       .eq('status', 'active')
       .order('sort_order', { ascending: true })
-    if (data) setIdeas(data)
+    
+    // If user has no ideas, check if we should create welcome idea
+    if (data && data.length === 0) {
+      await maybeCreateWelcomeIdea()
+      // Reload after creating welcome idea
+      const { data: refreshed } = await supabase
+        .from('ideas')
+        .select('*')
+        .eq('user_id', user!.id)
+        .eq('status', 'active')
+        .order('sort_order', { ascending: true })
+      if (refreshed) setIdeas(refreshed)
+    } else if (data) {
+      setIdeas(data)
+    }
     setIdeasLoaded(true)
+  }
+
+  async function maybeCreateWelcomeIdea() {
+    if (!user) return
+
+    // Check if we've already created the welcome idea for this user
+    const { data: settings } = await supabase
+      .from('user_settings')
+      .select('welcome_idea_created')
+      .eq('user_id', user.id)
+      .single()
+
+    if (settings?.welcome_idea_created) return
+
+    // Create the welcome idea
+    const { data: idea, error: ideaError } = await supabase
+      .from('ideas')
+      .insert({
+        user_id: user.id,
+        title: 'Welcome to Spark',
+        current_thinking: `Spark helps you form and develop ideas — supported but not directed by AI.
+
+This is a sample Idea to show you how Spark works. Poke around, try the buttons, then archive or delete it when you're ready.
+
+Current Thinking is where you keep your latest take on the idea. It stays fixed at the top so you can refine it over time.
+
+Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumptions, surface patterns, or suggest new directions — but it won't give you answers. That part's up to you.`,
+        status: 'active',
+      })
+      .select()
+      .single()
+
+    if (ideaError || !idea) {
+      console.error('Failed to create welcome idea:', ideaError)
+      return
+    }
+
+    // Create elements
+    const elements = [
+      {
+        user_id: user.id,
+        idea_id: idea.id,
+        type: 'thought',
+        source: 'user',
+        content: 'Elements are the building blocks of an Idea — your thoughts, web links, images, and Scouts. You can add notes to any element, or tap ⚡ Summarize to have AI distill it for you.',
+        metadata: {},
+        is_archived: false,
+      },
+      {
+        user_id: user.id,
+        idea_id: idea.id,
+        type: 'thought',
+        source: 'user',
+        content: 'Jots are your holding area for things that don\'t have a home yet. Create them from the Jots page or the Home screen to capture quickly and organize later. They stay in Jots until you send them to an Idea.',
+        metadata: {},
+        is_archived: false,
+      },
+      {
+        user_id: user.id,
+        idea_id: idea.id,
+        type: 'thought',
+        source: 'user',
+        content: 'Scouts help when you don\'t know what you\'re chasing yet. Pick a few topics and AI will return thought-provoking ideas to explore. Go deeper on any that interest you. If something clicks, save it as a Jot — or use it to start a new Idea.',
+        metadata: {},
+        is_archived: false,
+      },
+      {
+        user_id: user.id,
+        idea_id: idea.id,
+        type: 'scout',
+        source: 'ai',
+        content: 'The best tools disappear — you notice the work, not the interface',
+        metadata: {
+          zone: 'Technology',
+          expanded: 'Think about a hammer, a pencil, a well-designed chair. The tool becomes invisible when it\'s working. Software rarely achieves this — there\'s always a settings menu, a notification, a learning curve reminding you that you\'re using a thing. The question is whether digital tools can ever truly disappear, or if their nature demands attention.',
+          deeper_results: [
+            {
+              lens: 'What\'s the tension',
+              lensId: 'tension',
+              content: 'There\'s a conflict between tools that disappear and business models that need engagement. A hammer company doesn\'t need you to keep using the hammer — they got paid. Software companies often need your attention to survive. Can a tool disappear if the company needs you to notice it?'
+            }
+          ],
+          note: 'This is a Scout — a provocation I saved from the Scouts page. Tap Show more to see the full exploration.'
+        },
+        is_archived: false,
+      },
+      {
+        user_id: user.id,
+        idea_id: idea.id,
+        type: 'thought',
+        source: 'ai',
+        content: 'You\'re framing Spark as a tool that supports without directing — but what does "not directing" actually mean? If AI challenges assumptions or surfaces patterns, it\'s shaping what you think about next. That\'s a form of direction, just subtle. Where\'s the line between "support" and "influence" for you?',
+        metadata: { spark_type: 'response' },
+        is_archived: false,
+      },
+      {
+        user_id: user.id,
+        idea_id: idea.id,
+        type: 'image',
+        source: 'user',
+        content: null,
+        metadata: {
+          url: '/welcome-spark-logo.png',
+          note: 'My latest logo design.'
+        },
+        is_archived: false,
+      },
+    ]
+
+    const { error: elementsError } = await supabase
+      .from('elements')
+      .insert(elements)
+
+    if (elementsError) {
+      console.error('Failed to create welcome elements:', elementsError)
+    }
+
+    // Mark welcome idea as created
+    await supabase
+      .from('user_settings')
+      .upsert({
+        user_id: user.id,
+        welcome_idea_created: true,
+      }, { onConflict: 'user_id' })
   }
 
   async function loadArchivedIdeas() {
