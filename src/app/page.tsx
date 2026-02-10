@@ -199,13 +199,14 @@ export default function Home() {
 
     try {
       // Check if we've already created the welcome idea for this user
-      const { data: settings } = await supabase
+      const { data: settings, error: settingsError } = await supabase
         .from('user_settings')
         .select('welcome_idea_created')
         .eq('user_id', user.id)
         .single()
 
-      if (settings?.welcome_idea_created) return
+      // If row exists and flag is true, skip
+      if (!settingsError && settings?.welcome_idea_created) return
 
       // Double-check: also verify no Welcome idea exists (in case flag wasn't set)
       const { data: existingWelcome } = await supabase
