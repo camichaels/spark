@@ -29,6 +29,9 @@ export default function Home() {
   const [jotsCount, setJotsCount] = useState(0)
   const router = useRouter()
 
+  // Welcome idea creation lock
+  const welcomeIdeaCreating = useRef(false)
+
   // ••• Menu
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -190,35 +193,40 @@ export default function Home() {
   async function maybeCreateWelcomeIdea() {
     if (!user) return
 
-    // Check if we've already created the welcome idea for this user
-    const { data: settings } = await supabase
-      .from('user_settings')
-      .select('welcome_idea_created')
-      .eq('user_id', user.id)
-      .single()
+    // Prevent concurrent execution
+    if (welcomeIdeaCreating.current) return
+    welcomeIdeaCreating.current = true
 
-    if (settings?.welcome_idea_created) return
+    try {
+      // Check if we've already created the welcome idea for this user
+      const { data: settings } = await supabase
+        .from('user_settings')
+        .select('welcome_idea_created')
+        .eq('user_id', user.id)
+        .single()
 
-    // Double-check: also verify no Welcome idea exists (in case flag wasn't set)
-    const { data: existingWelcome } = await supabase
-      .from('ideas')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('title', 'Welcome to Spark')
-      .limit(1)
+      if (settings?.welcome_idea_created) return
 
-    if (existingWelcome && existingWelcome.length > 0) {
-      // Mark as created and return
+      // Double-check: also verify no Welcome idea exists (in case flag wasn't set)
+      const { data: existingWelcome } = await supabase
+        .from('ideas')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('title', 'Welcome to Spark')
+        .limit(1)
+
+      if (existingWelcome && existingWelcome.length > 0) {
+        // Mark as created and return
+        await supabase
+          .from('user_settings')
+          .upsert({ user_id: user.id, welcome_idea_created: true }, { onConflict: 'user_id' })
+        return
+      }
+
+      // Mark as created FIRST to prevent race conditions
       await supabase
         .from('user_settings')
         .upsert({ user_id: user.id, welcome_idea_created: true }, { onConflict: 'user_id' })
-      return
-    }
-
-    // Mark as created FIRST to prevent race conditions
-    await supabase
-      .from('user_settings')
-      .upsert({ user_id: user.id, welcome_idea_created: true }, { onConflict: 'user_id' })
 
     // Create the welcome idea
     const { data: idea, error: ideaError } = await supabase
@@ -331,13 +339,16 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
       console.error('Failed to create welcome elements:', elementsError)
     }
 
-    // Mark welcome idea as created
+    // Mark welcome idea as created (redundant but safe)
     await supabase
       .from('user_settings')
       .upsert({
         user_id: user.id,
         welcome_idea_created: true,
       }, { onConflict: 'user_id' })
+    } finally {
+      welcomeIdeaCreating.current = false
+    }
   }
 
   async function loadArchivedIdeas() {
