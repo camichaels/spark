@@ -252,7 +252,8 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
       return
     }
 
-    // Create elements one at a time with staggered timestamps to ensure order
+    // Create elements with staggered timestamps
+    // Timeline sorts by created_at DESC (newest first), so first element needs highest timestamp
     const now = Date.now()
     
     const elementsInOrder = [
@@ -264,7 +265,7 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
         content: 'Elements are the building blocks of an Idea — your thoughts, web links, images, and Scouts. You can add notes to any element, or tap ⚡ Summarize to have AI distill it for you.',
         metadata: {},
         is_archived: false,
-        created_at: new Date(now + 1).toISOString(),
+        created_at: new Date(now + 6).toISOString(),
       },
       {
         user_id: user.id,
@@ -274,7 +275,7 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
         content: 'Jots are your holding area for things that don\'t have a home yet. Create them from the Jots page or the Home screen to capture quickly and organize later. They stay in Jots until you send them to an Idea.',
         metadata: {},
         is_archived: false,
-        created_at: new Date(now + 2).toISOString(),
+        created_at: new Date(now + 5).toISOString(),
       },
       {
         user_id: user.id,
@@ -284,7 +285,7 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
         content: 'Scouts help when you don\'t know what you\'re chasing yet. Pick a few topics and AI will return thought-provoking ideas to explore. Go deeper on any that interest you. If something clicks, save it as a Jot — or use it to start a new Idea.',
         metadata: {},
         is_archived: false,
-        created_at: new Date(now + 3).toISOString(),
+        created_at: new Date(now + 4).toISOString(),
       },
       {
         user_id: user.id,
@@ -305,7 +306,7 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
           note: 'This is a Scout — a provocation I saved from the Scouts page. Tap Show more to see the full exploration.'
         },
         is_archived: false,
-        created_at: new Date(now + 4).toISOString(),
+        created_at: new Date(now + 3).toISOString(),
       },
       {
         user_id: user.id,
@@ -315,7 +316,7 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
         content: 'You\'re framing Spark as a tool that supports without directing — but what does "not directing" actually mean? If AI challenges assumptions or surfaces patterns, it\'s shaping what you think about next. That\'s a form of direction, just subtle. Where\'s the line between "support" and "influence" for you?',
         metadata: { spark_type: 'synthesize' },
         is_archived: false,
-        created_at: new Date(now + 5).toISOString(),
+        created_at: new Date(now + 2).toISOString(),
       },
       {
         user_id: user.id,
@@ -328,7 +329,7 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
           note: 'My latest logo design.'
         },
         is_archived: false,
-        created_at: new Date(now + 6).toISOString(),
+        created_at: new Date(now + 1).toISOString(),
       },
     ]
 
