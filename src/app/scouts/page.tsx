@@ -78,16 +78,16 @@ export default function ScoutsPage() {
     loadScoutsFromSession()
   }, [])
 
-  // Save scouts to sessionStorage when they change
+  // Save scouts to localStorage when they change
   useEffect(() => {
     if (scouts.length > 0) {
-      sessionStorage.setItem(SCOUTS_STORAGE_KEY, JSON.stringify(scouts))
+      localStorage.setItem(SCOUTS_STORAGE_KEY, JSON.stringify(scouts))
     }
   }, [scouts])
 
   function loadScoutsFromSession() {
     try {
-      const saved = sessionStorage.getItem(SCOUTS_STORAGE_KEY)
+      const saved = localStorage.getItem(SCOUTS_STORAGE_KEY)
       if (saved) {
         const parsed = JSON.parse(saved)
         setScouts(parsed)
@@ -182,7 +182,7 @@ export default function ScoutsPage() {
     
     // Clear previous scouts from session only if not appending
     if (!append) {
-      sessionStorage.removeItem(SCOUTS_STORAGE_KEY)
+      localStorage.removeItem(SCOUTS_STORAGE_KEY)
     }
     
     const { data: { session } } = await supabase.auth.getSession()
