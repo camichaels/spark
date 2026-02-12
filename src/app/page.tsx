@@ -824,6 +824,11 @@ Whenever you're ready, tap ⚡ Spark It below. AI will challenge your assumption
           <p>Made with ❤️ for those who spark ideas</p>
           <p><a href="mailto:hello@sparkideas.app" className={styles.footerContact}>hello@sparkideas.app</a></p>
           <p className={styles.footerCopy}>© 2026 Spark Ideas</p>
+          <p className={styles.footerLinks}>
+            <a href="/privacy" className={styles.footerLink}>Privacy Policy</a>
+            <span className={styles.footerDot}>·</span>
+            <a href="/terms" className={styles.footerLink}>Terms of Service</a>
+          </p>
         </footer>
       </div>
 
